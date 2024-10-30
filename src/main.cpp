@@ -15,20 +15,14 @@
 #include <fstream>
 #include <iostream>
 
-#ifndef STB_IMAGE_IMPLEMENTATION
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
 #include "view/gui_manager.h"
-#endif
+#include "rendering/Model.h"
+#include "rendering/Object.h"
 
 /** FUNCTIONS **/
 
-void input();
-
 void update();
-
 void render();
-
 
 /** GLOBAL VARIABLES **/
 ImVec4 clear_color = ImVec4(0.01f, 0.05f, 0.1f, 1.00f);
@@ -43,6 +37,8 @@ float deltaTime = 0.0f;  // Time between current frame and last frame
 float lastFrame = 0.0f; // Time of last frame
 float currentFrame;
 
+ObjectManager obman;
+
 
 int main(int, char **) {
 
@@ -53,6 +49,10 @@ int main(int, char **) {
 
     // Shader reflectShader("res/shaders/basic.vert", "res/shaders/reflect.frag");
     // Shader refractShader("res/shaders/basic.vert", "res/shaders/refract.frag");
+
+    //load default 3d model
+    obman = ObjectManager();
+    obman.importModel("res/models/rat/rat.obj");
 
     // Main loop
     while (!glfwWindowShouldClose(gui::window)) {
@@ -72,7 +72,6 @@ int main(int, char **) {
         gui::draw_gui();
         gui::end_frame();
 
-
     }
 
     gui::terminate();
@@ -86,4 +85,6 @@ void render() {
     // clear
     glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    obman.draw();
 }
