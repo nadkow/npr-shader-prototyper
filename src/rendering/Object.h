@@ -1,10 +1,14 @@
 #ifndef NPRSPR_OBJECT_H
 #define NPRSPR_OBJECT_H
 
+#include <utility>
+
 #include "Node.h"
 
 extern glm::mat4 view;
 extern glm::mat4 projection;
+
+enum lightType {directional, point, cone};
 
 class Object {
 
@@ -44,14 +48,39 @@ private:
     }
 };
 
+class LightObject {
+
+public:
+    ImVec4 color;
+    lightType type;
+    std::string name;
+
+    LightObject(std::string name) {
+        this->name = std::move(name);
+    }
+
+private:
+    Model model;
+    Node node;
+    ShaderProgram shader;
+    glm::vec4 baseDirection;
+};
+
 class ObjectManager {
 
 public:
 
     std::vector<Object> objects;
+    std::vector<LightObject> lightObjects;
 
     void importModel(const std::string& filename) {
         objects.emplace_back(filename);
+    }
+
+    void createLightObject() {
+        std::string number = "light";
+        number.append(std::to_string(lightObjects.size()));
+        lightObjects.emplace_back(number);
     }
 
     void draw() {

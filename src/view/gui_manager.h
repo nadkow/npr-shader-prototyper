@@ -1,12 +1,6 @@
 #ifndef NPRSPR_GUI_MANAGER_H
 #define NPRSPR_GUI_MANAGER_H
 
-#include "imgui.h"
-#include "imgui_impl/imgui_impl_glfw.h"
-#include "imgui_impl/imgui_impl_opengl3.h"
-#include <GLFW/glfw3.h> // Include glfw3.h after our OpenGL definitions
-#include "gl_version.h"
-
 extern ObjectManager obman;
 
 namespace gui {
@@ -117,9 +111,27 @@ namespace gui {
 
     void render_object_list() {
         ImGui::Begin("Object list");
-        for (Object ob : obman.objects) {
-            ImGui::Button(ob.name.c_str());
+
+        ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+        if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags))
+        {
+            if (ImGui::BeginTabItem("meshes"))
+            {
+                for (Object ob : obman.objects) {
+                    ImGui::Button(ob.name.c_str());
+                }
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("lights"))
+            {
+                for (LightObject ob : obman.lightObjects) {
+                    ImGui::Button(ob.name.c_str());
+                }
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
         }
+
         ImGui::End();
     }
 

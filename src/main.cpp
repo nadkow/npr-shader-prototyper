@@ -10,6 +10,12 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "imgui.h"
+#include "imgui_impl/imgui_impl_glfw.h"
+#include "imgui_impl/imgui_impl_opengl3.h"
+#include <GLFW/glfw3.h> // Include glfw3.h after our OpenGL definitions
+#include "gl_version.h"
+
 #include <ctime>
 #include <filesystem>
 #include <fstream>
@@ -53,6 +59,7 @@ int main(int, char **) {
     //load default 3d model
     obman = ObjectManager();
     obman.importModel("res/models/rat/rat.obj");
+    obman.createLightObject();
 
     // Main loop
     while (!glfwWindowShouldClose(gui::window)) {
