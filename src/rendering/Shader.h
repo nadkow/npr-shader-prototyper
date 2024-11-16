@@ -8,14 +8,14 @@
 #include <stdio.h>
 #include <fstream>
 
-class Shader
+class ShaderProgram
 {
 public:
     unsigned int ID;
 
-    Shader() = default;
+    ShaderProgram() = default;
 
-    Shader(const char* vertexPath, const char* fragmentPath)
+    ShaderProgram(const char* vertexPath, const char* fragmentPath)
     {
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
@@ -44,7 +44,7 @@ public:
         }
         catch (std::ifstream::failure e)
         {
-            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
+            spdlog::error("SHADER::FILE_NOT_SUCCESFULLY_READ");
         }
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();

@@ -7,7 +7,7 @@
 #include <GLFW/glfw3.h> // Include glfw3.h after our OpenGL definitions
 #include "gl_version.h"
 
-extern glm::mat4 projection;
+extern ObjectManager obman;
 
 namespace gui {
 
@@ -115,13 +115,18 @@ namespace gui {
         ImGui::NewFrame();
     }
 
+    void render_object_list() {
+        ImGui::Begin("Object list");
+        for (Object ob : obman.objects) {
+            ImGui::Button(ob.name.c_str());
+        }
+        ImGui::End();
+    }
+
     void imgui_render() {
 
-        ImGui::Begin("Hello");
-
-        ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
-                    ImGui::GetIO().Framerate);
-        ImGui::End();
+        //ImGui::SetNextWindowSize({0, 0});
+        render_object_list();
     }
 
     void imgui_end() {

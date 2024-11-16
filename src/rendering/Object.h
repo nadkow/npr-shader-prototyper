@@ -4,17 +4,20 @@
 #include "Node.h"
 
 extern glm::mat4 view;
+extern glm::mat4 projection;
 
 class Object {
 
 public:
 
-    bool visible;
+    bool visible = true;
+    std::string name;
 
-    explicit Object(std::string filename) : filename(std::move(filename)) {
+    explicit Object(std::string filepath) : filepath(std::move(filepath)) {
         //rootNode.addChild(&ratNode);
-        model = Model(std::filesystem::absolute(this->filename));
-        shader = Shader("res/shaders/model.vert", "res/shaders/model.frag");
+        model = Model(std::filesystem::absolute(this->filepath));
+        shader = ShaderProgram("res/shaders/model.vert", "res/shaders/model.frag");
+        extractFilename();
     }
 
     Object() = default;
@@ -28,29 +31,38 @@ public:
     }
 
 private:
-    std::string filename;
+    std::string filepath;
     Model model;
     Node node;
-    Shader shader;
+    ShaderProgram shader;
+
+    void extractFilename() {
+        // extract name from filepath
+        std::size_t found = filepath.find_last_of("/\\");
+        //std::cout << " path: " << filepath.substr(0,found) << '\n';
+        name = filepath.substr(found+1);
+    }
 };
 
 class ObjectManager {
 
 public:
 
+    std::vector<Object> objects;
+
     void importModel(const std::string& filename) {
         objects.emplace_back(filename);
     }
 
     void draw() {
+        // draw all objects
+        // TODO this draws every frame so make list of visible objects (update list when visibility changes) instead of if
         for (auto obj : objects) {
-            obj.draw();
+            if (obj.visible) obj.draw();
         }
     }
 
 private:
-
-    std::vector<Object> objects;
     Node rootNode;
 };
 

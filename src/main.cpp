@@ -15,9 +15,9 @@
 #include <fstream>
 #include <iostream>
 
-#include "view/gui_manager.h"
 #include "rendering/Model.h"
 #include "rendering/Object.h"
+#include "view/gui_manager.h"
 
 /** FUNCTIONS **/
 
