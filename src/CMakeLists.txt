@@ -23,7 +23,7 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${ASSETS_FILES}
 		view/gui_manager.h
 		gl_version.h
 		rendering/Object.h
-        rendering/LightProperties.h)
+        )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
 target_compile_definitions(${PROJECT_NAME} PRIVATE LIBRARY_SUFFIX="")
@@ -31,7 +31,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE LIBRARY_SUFFIX="")
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 												  ${glad_SOURCE_DIR}
 												  ${stb_image_SOURCE_DIR}
-												  ${imgui_SOURCE_DIR})
+												  ${imgui_SOURCE_DIR}
+												  ${imguizmo_SOURCE_DIR}
+												  ${imgui_impl_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} glad)
@@ -39,6 +41,8 @@ target_link_libraries(${PROJECT_NAME} stb_image)
 target_link_libraries(${PROJECT_NAME} assimp)
 target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} imgui)
+target_link_libraries(${PROJECT_NAME} imgui_impl)
+target_link_libraries(${PROJECT_NAME} imguizmo)
 target_link_libraries(${PROJECT_NAME} spdlog)
 target_link_libraries(${PROJECT_NAME} glm::glm)
 

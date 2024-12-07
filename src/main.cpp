@@ -11,8 +11,9 @@
 #include <glm/gtx/string_cast.hpp>
 
 #include "imgui.h"
-#include "imgui_impl/imgui_impl_glfw.h"
-#include "imgui_impl/imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include <ImGuizmo.h>
 #include <GLFW/glfw3.h> // Include glfw3.h after our OpenGL definitions
 #include "gl_version.h"
 
