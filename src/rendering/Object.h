@@ -10,6 +10,8 @@ extern glm::mat4 projection;
 
 enum lightType {directional, point, cone};
 
+static int globalId;
+
 class Object {
 
 public:
@@ -22,6 +24,9 @@ public:
         model = Model(std::filesystem::absolute(this->filepath));
         shader = ShaderProgram("res/shaders/model.vert", "res/shaders/model.frag");
         extractFilename();
+        name.append(std::to_string(globalId));
+        id = globalId;
+        globalId++;
     }
 
     Object() = default;
@@ -35,6 +40,7 @@ public:
     }
 
 private:
+    int id;
     std::string filepath;
     Model model;
     Node node;
@@ -43,7 +49,6 @@ private:
     void extractFilename() {
         // extract name from filepath
         std::size_t found = filepath.find_last_of("/\\");
-        //std::cout << " path: " << filepath.substr(0,found) << '\n';
         name = filepath.substr(found+1);
     }
 };
@@ -55,11 +60,15 @@ public:
     lightType type;
     std::string name;
 
-    LightObject(std::string name) {
-        this->name = std::move(name);
+    LightObject() {
+        name = "light";
+        name.append(std::to_string(globalId));
+        id = globalId;
+        globalId++;
     }
 
 private:
+    int id;
     Model model;
     Node node;
     ShaderProgram shader;
@@ -70,24 +79,41 @@ class ObjectManager {
 
 public:
 
-    std::vector<Object> objects;
-    std::vector<LightObject> lightObjects;
+    std::vector<Object*> objects;
+    std::vector<LightObject*> lightObjects;
 
     void importModel(const std::string& filename) {
-        objects.emplace_back(filename);
+        objects.push_back(new Object(filename));
     }
 
     void createLightObject() {
-        std::string number = "light";
-        number.append(std::to_string(lightObjects.size()));
-        lightObjects.emplace_back(number);
+        lightObjects.push_back(new LightObject());
+    }
+
+    void addNewModel() {
+        // TODO will be able to choose from a directory of models
+        importModel("res/models/rat/rat.obj");
+    }
+
+    void deleteObject(Object *ob) {
+        auto it = std::remove(objects.begin(), objects.end(), ob);
+        objects.erase(it, objects.end());
+    }
+
+    void addNewLight() {
+        createLightObject();
+    }
+
+    void deleteLight(LightObject *ob) {
+        auto it = std::remove(lightObjects.begin(), lightObjects.end(), ob);
+        lightObjects.erase(it, lightObjects.end());
     }
 
     void draw() {
         // draw all objects
         // TODO this draws every frame so make list of visible objects (update list when visibility changes) instead of if
         for (auto obj : objects) {
-            if (obj.visible) obj.draw();
+            if (obj->visible) obj->draw();
         }
     }
 

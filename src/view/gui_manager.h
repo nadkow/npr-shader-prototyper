@@ -8,7 +8,8 @@ namespace gui {
     constexpr int32_t WINDOW_WIDTH = 1920;
     constexpr int32_t WINDOW_HEIGHT = 1080;
     GLFWwindow *window = nullptr;
-
+    Object *selected = nullptr;
+    LightObject *selectedLight = nullptr;
 
     static void glfw_error_callback(int error, const char *description) {
         fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -117,16 +118,28 @@ namespace gui {
         {
             if (ImGui::BeginTabItem("meshes"))
             {
-                for (Object ob : obman.objects) {
-                    ImGui::Button(ob.name.c_str());
+                for (Object *ob : obman.objects) {
+                    if (ImGui::Selectable(ob->name.c_str(), selected == ob))
+                        selected = ob;
                 }
+                ImGui::Separator();
+                if (ImGui::Button("+")) obman.addNewModel();
+                ImGui::SameLine();
+                if (ImGui::Button("-")) obman.deleteObject(selected);
+
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("lights"))
             {
-                for (LightObject ob : obman.lightObjects) {
-                    ImGui::Button(ob.name.c_str());
+                for (LightObject *ob : obman.lightObjects) {
+                    if (ImGui::Selectable(ob->name.c_str(), selectedLight == ob))
+                        selectedLight = ob;
                 }
+                ImGui::Separator();
+                if (ImGui::Button("+")) obman.addNewLight();
+                ImGui::SameLine();
+                if (ImGui::Button("-")) obman.deleteLight(selectedLight);
+
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
