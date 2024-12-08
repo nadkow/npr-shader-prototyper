@@ -34,8 +34,9 @@ void render();
 /** GLOBAL VARIABLES **/
 ImVec4 clear_color = ImVec4(0.01f, 0.05f, 0.1f, 1.00f);
 
-glm::vec3 cameraPos = glm::vec3(0.0f, 3.f, 10.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, -3.0f, -10.0f);
+float camDist = 10.f;
+glm::vec3 cameraPos = glm::vec3(0.0f, 3.f, camDist);
+glm::vec3 cameraFront = glm::vec3(0.0f, -3.0f, -camDist);
 glm::vec3 cameraUp = glm::vec3(0.0f, 0.996f, 0.08f);
 glm::mat4 view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);

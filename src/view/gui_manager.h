@@ -3,6 +3,9 @@
 
 extern ObjectManager obman;
 
+extern float camDist;
+glm::mat4 identityMat = glm::mat4(1.f);
+
 namespace gui {
 
     constexpr int32_t WINDOW_WIDTH = 1920;
@@ -148,10 +151,22 @@ namespace gui {
         ImGui::End();
     }
 
+    void draw_imguizmo() {
+        ImGuizmo::BeginFrame();
+        ImGuiIO& io = ImGui::GetIO();
+        ImGuizmo::SetRect(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+
+        float viewManipulateRight = io.DisplaySize.x;
+        float viewManipulateTop = 0;
+
+        ImGuizmo::ViewManipulate(&view[0][0], camDist, ImVec2(viewManipulateRight - 128, viewManipulateTop), ImVec2(128, 128), 0x10101010);
+    }
+
     void imgui_render() {
 
         //ImGui::SetNextWindowSize({0, 0});
         render_object_list();
+        draw_imguizmo();
     }
 
     void imgui_end() {
