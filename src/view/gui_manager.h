@@ -11,8 +11,9 @@ namespace gui {
     constexpr int32_t WINDOW_WIDTH = 1920;
     constexpr int32_t WINDOW_HEIGHT = 1080;
     GLFWwindow *window = nullptr;
-    Object *selected = nullptr;
+    Object *selectedObject = nullptr;
     LightObject *selectedLight = nullptr;
+    GeneralObject *activeSelected = nullptr;
 
     static void glfw_error_callback(int error, const char *description) {
         fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -122,32 +123,39 @@ namespace gui {
             if (ImGui::BeginTabItem("meshes"))
             {
                 for (Object *ob : obman.objects) {
-                    if (ImGui::Selectable(ob->name.c_str(), selected == ob))
-                        selected = ob;
+                    if (ImGui::Selectable(ob->name.c_str(), selectedObject == ob)) {
+                        selectedObject = ob;
+                        activeSelected = ob;
+                    }
                 }
                 ImGui::Separator();
                 if (ImGui::Button("+")) obman.addNewModel();
                 ImGui::SameLine();
-                if (ImGui::Button("-")) obman.deleteObject(selected);
-
+                if (ImGui::Button("-")) {
+                    obman.deleteObject(selectedObject);
+                    activeSelected = nullptr;
+                }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("lights"))
             {
                 for (LightObject *ob : obman.lightObjects) {
-                    if (ImGui::Selectable(ob->name.c_str(), selectedLight == ob))
+                    if (ImGui::Selectable(ob->name.c_str(), selectedLight == ob)) {
                         selectedLight = ob;
+                        activeSelected = ob;
+                    }
                 }
                 ImGui::Separator();
                 if (ImGui::Button("+")) obman.addNewLight();
                 ImGui::SameLine();
-                if (ImGui::Button("-")) obman.deleteLight(selectedLight);
-
+                if (ImGui::Button("-")) {
+                    obman.deleteLight(selectedLight);
+                    activeSelected = nullptr;
+                }
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
         }
-
         ImGui::End();
     }
 
@@ -160,13 +168,17 @@ namespace gui {
         float viewManipulateTop = 0;
 
         ImGuizmo::ViewManipulate(&view[0][0], camDist, ImVec2(viewManipulateRight - 128, viewManipulateTop), ImVec2(128, 128), 0x10101010);
+
+        if (activeSelected) {
+            ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, activeSelected->node.getTranslationMatrix(), nullptr, nullptr, nullptr, nullptr);
+        }
     }
 
     void imgui_render() {
 
         //ImGui::SetNextWindowSize({0, 0});
-        render_object_list();
         draw_imguizmo();
+        render_object_list();
     }
 
     void imgui_end() {

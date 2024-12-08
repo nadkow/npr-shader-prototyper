@@ -64,6 +64,10 @@ public:
         return transf;
     }
 
+    float* getTranslationMatrix() {
+        return &transf[0][0];
+    }
+
     glm::vec3 getGlobalTranslation() {
         if (parent == nullptr) return transf * glm::vec4(0.f, 0.f, 0.f, 1.0f);
         return parent->getTranslation() * transf * glm::vec4(0.f, 0.f, 0.f, 1.0f);

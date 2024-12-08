@@ -12,15 +12,20 @@ enum lightType {directional, point, cone};
 
 static int globalId;
 
-class Object {
+class GeneralObject {
+public:
+    std::string name;
+    bool visible = true;
+    Node node;
+protected:
+    int id;
+};
+
+class Object : public GeneralObject {
 
 public:
 
-    bool visible = true;
-    std::string name;
-
     explicit Object(std::string filepath) : filepath(std::move(filepath)) {
-        //rootNode.addChild(&ratNode);
         model = Model(std::filesystem::absolute(this->filepath));
         shader = ShaderProgram("res/shaders/model.vert", "res/shaders/model.frag");
         extractFilename();
@@ -40,10 +45,8 @@ public:
     }
 
 private:
-    int id;
     std::string filepath;
     Model model;
-    Node node;
     ShaderProgram shader;
 
     void extractFilename() {
@@ -53,12 +56,11 @@ private:
     }
 };
 
-class LightObject {
+class LightObject : public GeneralObject {
 
 public:
     ImVec4 color;
     lightType type;
-    std::string name;
 
     LightObject() {
         name = "light";
@@ -68,9 +70,7 @@ public:
     }
 
 private:
-    int id;
     Model model;
-    Node node;
     ShaderProgram shader;
     glm::vec4 baseDirection;
 };
@@ -112,7 +112,7 @@ public:
     void draw() {
         // draw all objects
         // TODO this draws every frame so make list of visible objects (update list when visibility changes) instead of if
-        for (auto obj : objects) {
+        for (Object *obj : objects) {
             if (obj->visible) obj->draw();
         }
     }
