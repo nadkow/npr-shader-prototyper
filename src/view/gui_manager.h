@@ -8,6 +8,8 @@ glm::mat4 identityMat = glm::mat4(1.f);
 
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
+std::string modelExtensions[2] = {"obj", "fbx"};
+
 namespace gui {
 
     constexpr int32_t WINDOW_WIDTH = 1920;
@@ -104,6 +106,28 @@ namespace gui {
         //IM_ASSERT(font != NULL);
     }
 
+    void readDirectory(const std::string& dirpath, std::string extensions[], std::vector<std::string> *result) {
+        // This structure would distinguish a file from a directory
+        struct stat sb;
+
+        for (const auto& entry : std::filesystem::directory_iterator(dirpath)) {
+
+            // convert path to const char*
+            std::string pathstring = entry.path().string();
+            const char* path = pathstring.c_str();
+
+            // if item is a non-directory, save filename
+            if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)) {
+                for (int i = 0; i < extensions->size(); i++){
+                    if (pathstring.ends_with(extensions[i])) {
+                        result->emplace_back(pathstring);
+                        break;
+                    }
+                }
+            } else readDirectory(pathstring, extensions, result);
+        }
+    }
+
     bool init() {
         if (!init_glfw()) {
             spdlog::error("Failed to initialize project!");
@@ -117,6 +141,9 @@ namespace gui {
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetKeyCallback(window, key_callback);
+
+        std::vector<std::string> modelFiles;
+        readDirectory("res\\models", modelExtensions, &modelFiles);
     }
 
     void imgui_begin() {
