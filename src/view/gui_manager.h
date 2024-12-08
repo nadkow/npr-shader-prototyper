@@ -6,6 +6,8 @@ extern ObjectManager obman;
 extern float camDist;
 glm::mat4 identityMat = glm::mat4(1.f);
 
+static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
+
 namespace gui {
 
     constexpr int32_t WINDOW_WIDTH = 1920;
@@ -19,7 +21,17 @@ namespace gui {
         fprintf(stderr, "Glfw Error %d: %s\n", error, description);
     }
 
-    void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods){};
+    void key_callback(GLFWwindow *window, int key, int scancode, int action, int mods){
+        if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+            currentGizmoOperation = ImGuizmo::TRANSLATE;
+        }
+        if (key == GLFW_KEY_E && action == GLFW_PRESS) {
+            currentGizmoOperation = ImGuizmo::ROTATE;
+        }
+        if (key == GLFW_KEY_R && action == GLFW_PRESS) {
+            currentGizmoOperation = ImGuizmo::SCALE;
+        }
+    }
 
     void process_input() {
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
@@ -170,7 +182,7 @@ namespace gui {
         ImGuizmo::ViewManipulate(&view[0][0], camDist, ImVec2(viewManipulateRight - 128, viewManipulateTop), ImVec2(128, 128), 0x10101010);
 
         if (activeSelected) {
-            ImGuizmo::Manipulate(&view[0][0], &projection[0][0], ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, activeSelected->node.getTranslationMatrix(), nullptr, nullptr, nullptr, nullptr);
+            ImGuizmo::Manipulate(&view[0][0], &projection[0][0], currentGizmoOperation, ImGuizmo::LOCAL, activeSelected->node.getTranslationMatrix(), nullptr, nullptr, nullptr, nullptr);
         }
     }
 
