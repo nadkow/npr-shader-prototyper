@@ -1,6 +1,6 @@
 # Blender 3.5.1
 # www.blender.org
-mtllib rat.mtl
+mtllib rat2.mtl
 o rat
 v 0.000000 0.270380 -0.003271
 v 0.000000 0.270380 -0.003271

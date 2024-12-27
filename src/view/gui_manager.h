@@ -142,7 +142,6 @@ namespace gui {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetKeyCallback(window, key_callback);
 
-        std::vector<std::string> modelFiles;
         readDirectory("res\\models", modelExtensions, &modelFiles);
     }
 
@@ -168,7 +167,7 @@ namespace gui {
                     }
                 }
                 ImGui::Separator();
-                if (ImGui::Button("+")) obman.addNewModel();
+                if (ImGui::Button("+")) obman.addNewModel("rat/rat2.obj");
                 ImGui::SameLine();
                 if (ImGui::Button("-")) {
                     obman.deleteObject(selectedObject);
@@ -194,6 +193,24 @@ namespace gui {
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
+        }
+        ImGui::Separator();
+        if (activeSelected) {
+            if (activeSelected == selectedObject) {
+                // display selected object properties
+                if (ImGui::BeginCombo("model", selectedObject->filename.c_str())) {
+                    for (auto &modelFile: modelFiles) {
+                        bool is_selected = (selectedObject->filename == modelFile);
+                        if (ImGui::Selectable(modelFile.c_str(), is_selected)) {
+                            selectedObject->changeFile(modelFile);
+                        }
+                        if (is_selected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            }
         }
         ImGui::End();
     }

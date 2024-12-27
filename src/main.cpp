@@ -32,7 +32,7 @@ void update();
 void render();
 
 /** GLOBAL VARIABLES **/
-ImVec4 clear_color = ImVec4(0.01f, 0.05f, 0.1f, 1.00f);
+ImVec4 clear_color = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
 
 float camDist = 10.f;
 glm::vec3 cameraPos = glm::vec3(0.0f, 3.f, camDist);
@@ -60,7 +60,7 @@ int main(int, char **) {
 
     //load default 3d model
     obman = ObjectManager();
-    obman.importModel("res/models/rat/rat.obj");
+    obman.importModel("res/models/rat/rat2.obj");
     obman.createLightObject();
 
     // Main loop

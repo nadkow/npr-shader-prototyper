@@ -8,7 +8,10 @@
 extern glm::mat4 view;
 extern glm::mat4 projection;
 
-enum lightType {directional, point, cone};
+enum lightType {directional, point};
+
+// this is populated by gui
+std::vector<std::string> modelFiles;
 
 static int globalId;
 
@@ -25,8 +28,10 @@ class Object : public GeneralObject {
 
 public:
 
-    explicit Object(std::string filepath) : filepath(std::move(filepath)) {
-        model = Model(std::filesystem::absolute(this->filepath));
+    std::string filename;
+
+    explicit Object(std::string filepath) : filename(std::move(filepath)) {
+        model = Model(std::filesystem::absolute(filename));
         shader = ShaderProgram("res/shaders/model.vert", "res/shaders/model.frag");
         extractFilename();
         name.append(std::to_string(globalId));
@@ -44,22 +49,28 @@ public:
         model.Draw(shader);
     }
 
+    void changeFile(const std::string& newfilename) {
+        model = Model(std::filesystem::absolute(newfilename));
+        filename = newfilename;
+        extractFilename();
+        name.append(std::to_string(id));
+    }
+
 private:
-    std::string filepath;
     Model model;
     ShaderProgram shader;
 
     void extractFilename() {
         // extract name from filepath
-        std::size_t found = filepath.find_last_of("/\\");
-        name = filepath.substr(found+1);
+        std::size_t found = filename.find_last_of("/\\");
+        name = filename.substr(found+1);
     }
 };
 
 class LightObject : public GeneralObject {
 
 public:
-    ImVec4 color;
+    ImVec4 color = ImVec4(1.f, 1.f, 1.f, 1.f);
     lightType type;
 
     LightObject() {
@@ -67,12 +78,13 @@ public:
         name.append(std::to_string(globalId));
         id = globalId;
         globalId++;
+        type = point;
     }
 
 private:
     Model model;
     ShaderProgram shader;
-    glm::vec4 baseDirection;
+    glm::vec4 baseDirection = glm::vec4(0.f, -1.f, 0.f, 1.f);
 };
 
 class ObjectManager {
@@ -90,14 +102,14 @@ public:
         lightObjects.push_back(new LightObject());
     }
 
-    void addNewModel() {
-        // TODO will be able to choose from a directory of models
-        importModel("res/models/rat/rat.obj");
+    void addNewModel(const std::string& filename) {
+        importModel(filename);
     }
 
     void deleteObject(Object *ob) {
         auto it = std::remove(objects.begin(), objects.end(), ob);
         objects.erase(it, objects.end());
+        delete ob;
     }
 
     void addNewLight() {
@@ -107,6 +119,7 @@ public:
     void deleteLight(LightObject *ob) {
         auto it = std::remove(lightObjects.begin(), lightObjects.end(), ob);
         lightObjects.erase(it, lightObjects.end());
+        delete ob;
     }
 
     void draw() {
