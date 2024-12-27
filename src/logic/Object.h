@@ -10,9 +10,6 @@ extern glm::mat4 projection;
 
 enum lightType {directional, point};
 
-// this is populated by gui
-std::vector<std::string> modelFiles;
-
 static int globalId;
 
 class GeneralObject {

@@ -4,11 +4,8 @@
 extern ObjectManager obman;
 
 extern float camDist;
-glm::mat4 identityMat = glm::mat4(1.f);
 
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
-
-std::string modelExtensions[2] = {"obj", "fbx"};
 
 namespace gui {
 
@@ -106,28 +103,6 @@ namespace gui {
         //IM_ASSERT(font != NULL);
     }
 
-    void readDirectory(const std::string& dirpath, std::string extensions[], std::vector<std::string> *result) {
-        // This structure would distinguish a file from a directory
-        struct stat sb;
-
-        for (const auto& entry : std::filesystem::directory_iterator(dirpath)) {
-
-            // convert path to const char*
-            std::string pathstring = entry.path().string();
-            const char* path = pathstring.c_str();
-
-            // if item is a non-directory, save filename
-            if (stat(path, &sb) == 0 && !(sb.st_mode & S_IFDIR)) {
-                for (int i = 0; i < extensions->size(); i++){
-                    if (pathstring.ends_with(extensions[i])) {
-                        result->emplace_back(pathstring);
-                        break;
-                    }
-                }
-            } else readDirectory(pathstring, extensions, result);
-        }
-    }
-
     bool init() {
         if (!init_glfw()) {
             spdlog::error("Failed to initialize project!");
@@ -141,8 +116,6 @@ namespace gui {
 
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetKeyCallback(window, key_callback);
-
-        readDirectory("res\\models", modelExtensions, &modelFiles);
     }
 
     void imgui_begin() {
@@ -161,13 +134,13 @@ namespace gui {
             if (ImGui::BeginTabItem("meshes"))
             {
                 for (Object *ob : obman.objects) {
-                    if (ImGui::Selectable(ob->name.c_str(), selectedObject == ob)) {
+                    if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
                         selectedObject = ob;
                         activeSelected = ob;
                     }
                 }
                 ImGui::Separator();
-                if (ImGui::Button("+")) obman.addNewModel("rat/rat2.obj");
+                if (ImGui::Button("+")) obman.addNewModel("res/models/rat/rat2.obj");
                 ImGui::SameLine();
                 if (ImGui::Button("-")) {
                     obman.deleteObject(selectedObject);
@@ -178,7 +151,7 @@ namespace gui {
             if (ImGui::BeginTabItem("lights"))
             {
                 for (LightObject *ob : obman.lightObjects) {
-                    if (ImGui::Selectable(ob->name.c_str(), selectedLight == ob)) {
+                    if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
                         selectedLight = ob;
                         activeSelected = ob;
                     }
@@ -199,7 +172,7 @@ namespace gui {
             if (activeSelected == selectedObject) {
                 // display selected object properties
                 if (ImGui::BeginCombo("model", selectedObject->filename.c_str())) {
-                    for (auto &modelFile: modelFiles) {
+                    for (auto &modelFile : files::modelFiles) {
                         bool is_selected = (selectedObject->filename == modelFile);
                         if (ImGui::Selectable(modelFile.c_str(), is_selected)) {
                             selectedObject->changeFile(modelFile);

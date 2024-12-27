@@ -22,8 +22,9 @@
 #include <fstream>
 #include <iostream>
 
+#include "logic/FileManager.h"
 #include "rendering/Model.h"
-#include "rendering/Object.h"
+#include "logic/Object.h"
 #include "view/gui_manager.h"
 
 /** FUNCTIONS **/
@@ -62,6 +63,9 @@ int main(int, char **) {
     obman = ObjectManager();
     obman.importModel("res/models/rat/rat2.obj");
     obman.createLightObject();
+
+    //load files
+    files::readModelFiles();
 
     // Main loop
     while (!glfwWindowShouldClose(gui::window)) {
