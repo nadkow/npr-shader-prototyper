@@ -24,6 +24,10 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${ASSETS_FILES}
 		gl_version.h
         logic/Object.h
         logic/FileManager.h
+		logic/ShaderStack.h
+		rendering/ShaderBlock.h
+        rendering/StackState.h
+		logic/common.h
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)

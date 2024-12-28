@@ -4,9 +4,7 @@
 #include <utility>
 
 #include "Node.h"
-
-extern glm::mat4 view;
-extern glm::mat4 projection;
+#include "ShaderStack.h"
 
 enum lightType {directional, point};
 
@@ -29,7 +27,7 @@ public:
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
-        shader = ShaderProgram("res/shaders/model.vert", "res/shaders/model.frag");
+        shader = ShaderStack(&model, &node);
         extractFilename();
         name.append(std::to_string(globalId));
         id = globalId;
@@ -39,11 +37,7 @@ public:
     Object() = default;
 
     void draw() {
-        shader.use();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-        shader.setMat4("transform", node.getTransform());
-        model.Draw(shader);
+        shader.draw();
     }
 
     void changeFile(const std::string& newfilename) {
@@ -55,7 +49,7 @@ public:
 
 private:
     Model model;
-    ShaderProgram shader;
+    ShaderStack shader;
 
     void extractFilename() {
         // extract name from filepath

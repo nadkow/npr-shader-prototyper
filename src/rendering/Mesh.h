@@ -4,7 +4,7 @@
 #include "glad/glad.h"
 #include <string>
 #include <vector>
-#include "Shader.h"
+#include "ShaderProgram.h"
 
 struct Vertex
 {
