@@ -9,8 +9,6 @@ static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
 namespace gui {
 
-    constexpr int32_t WINDOW_WIDTH = 1920;
-    constexpr int32_t WINDOW_HEIGHT = 1080;
     GLFWwindow *window = nullptr;
     Object *selectedObject = nullptr;
     LightObject *selectedLight = nullptr;

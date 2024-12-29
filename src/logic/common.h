@@ -1,6 +1,9 @@
 #ifndef NPRSPR_COMMON_H
 #define NPRSPR_COMMON_H
 
+constexpr int32_t WINDOW_WIDTH = 1920;
+constexpr int32_t WINDOW_HEIGHT = 1080;
+
 ImVec4 clear_color = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
 
 float camDist = 10.f;

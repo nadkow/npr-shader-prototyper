@@ -5,6 +5,8 @@ namespace stack {
 
     Model* model;
     Node* node;
+    unsigned int gBuffer;
+    unsigned int gPosition, gNormal, gAlbedoSpec, gRender;
 
 }
 
