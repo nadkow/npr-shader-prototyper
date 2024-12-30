@@ -43,6 +43,7 @@ int main(int, char **) {
     block::init();
 
     glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
 
     // Shader reflectShader("res/shaders/basic.vert", "res/shaders/reflect.frag");

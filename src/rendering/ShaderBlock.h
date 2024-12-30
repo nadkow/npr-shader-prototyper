@@ -48,7 +48,6 @@ namespace block {
         glBindFramebuffer(GL_FRAMEBUFFER, stack::gBuffer);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         stack::model->Draw(prepareProgram);
-        glDisable(GL_DEPTH_TEST);
     }
 
     void flat() {
@@ -62,7 +61,6 @@ namespace block {
     }
 
     void finalize() {
-        glEnable(GL_DEPTH_TEST);
         // unbind gbuffer
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glActiveTexture(GL_TEXTURE0);
