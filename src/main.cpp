@@ -23,36 +23,30 @@
 #include <iostream>
 
 #include "logic/common.h"
-#include "logic/FileManager.h"
-#include "rendering/Model.h"
 #include "logic/Object.h"
-#include "view/gui_manager.h"
 
-/** FUNCTIONS **/
+ObjectManager object_manager;
+
+#include "logic/FileManager.h"
+#include "view/gui_manager.h"
+#include "rendering/ObjectRenderer.h"
 
 void update();
 void render();
 
-/** GLOBAL VARIABLES **/
-
-ObjectManager obman;
-
 int main(int, char **) {
 
     gui::init();
-    block::init();
+    renderer::init();
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
 
-    // Shader reflectShader("res/shaders/basic.vert", "res/shaders/reflect.frag");
-    // Shader refractShader("res/shaders/basic.vert", "res/shaders/refract.frag");
-
     //load default 3d model
-    obman = ObjectManager();
-    obman.importModel("res/models/rat/rat2.obj");
-    obman.createLightObject();
+    object_manager = ObjectManager();
+    object_manager.importModel("res/models/rat/rat2.obj");
+    object_manager.createLightObject();
 
     //load files
     files::readModelFiles();
@@ -89,5 +83,5 @@ void render() {
     glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    obman.draw();
+    renderer::draw();
 }

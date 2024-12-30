@@ -3,19 +3,26 @@
 
 #include <utility>
 
+#include "../rendering/Model.h"
 #include "Node.h"
 #include "ShaderStack.h"
 
-enum lightType {directional, point};
+enum lightType {
+    directional, point
+};
 
 static int globalId;
 
 class GeneralObject {
+
 public:
+
     std::string name;
     bool visible = true;
     Node node;
+
 protected:
+
     int id;
 };
 
@@ -27,7 +34,7 @@ public:
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
-        shader = ShaderStack(&model, &node);
+        shader = ShaderStack();
         extractFilename();
         name.append(std::to_string(globalId));
         id = globalId;
@@ -37,6 +44,9 @@ public:
     Object() = default;
 
     void draw() {
+        // update context before drawing
+        stack::model = &model;
+        stack::node = &node;
         shader.draw();
     }
 
@@ -54,13 +64,14 @@ private:
     void extractFilename() {
         // extract name from filepath
         std::size_t found = filename.find_last_of("/\\");
-        name = filename.substr(found+1);
+        name = filename.substr(found + 1);
     }
 };
 
 class LightObject : public GeneralObject {
 
 public:
+
     ImVec4 color = ImVec4(1.f, 1.f, 1.f, 1.f);
     lightType type;
 
@@ -73,6 +84,7 @@ public:
     }
 
 private:
+
     Model model;
     ShaderProgram shader;
     glm::vec4 baseDirection = glm::vec4(0.f, -1.f, 0.f, 1.f);
@@ -82,10 +94,10 @@ class ObjectManager {
 
 public:
 
-    std::vector<Object*> objects;
-    std::vector<LightObject*> lightObjects;
+    std::vector<Object *> objects;
+    std::vector<LightObject *> lightObjects;
 
-    void importModel(const std::string& filename) {
+    void importModel(const std::string &filename) {
         objects.push_back(new Object(filename));
     }
 
@@ -93,7 +105,7 @@ public:
         lightObjects.push_back(new LightObject());
     }
 
-    void addNewModel(const std::string& filename) {
+    void addNewModel(const std::string &filename) {
         importModel(filename);
     }
 
@@ -114,16 +126,9 @@ public:
     }
 
     void draw() {
-        // draw all objects
-        // bind custom buffer to draw to
-        glBindFramebuffer(GL_FRAMEBUFFER, stack::gBuffer);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // TODO this draws every frame so make list of visible objects (update list when visibility changes) instead of if
-        for (Object *obj : objects) {
+        for (Object *obj: objects) {
             if (obj->visible) obj->draw();
         }
-        // render final image
-        block::finalize();
     }
 
 private:

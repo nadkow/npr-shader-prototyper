@@ -2,3 +2,6 @@
 
 -[ ] refactor
 -[ ] shader blocks customization
+-[ ] customize light properties
+- [ ] save node setup to file
+- [ ] imguizmo nodes

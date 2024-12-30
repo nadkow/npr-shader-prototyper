@@ -1,10 +1,6 @@
 #ifndef NPRSPR_GUI_MANAGER_H
 #define NPRSPR_GUI_MANAGER_H
 
-extern ObjectManager obman;
-
-extern float camDist;
-
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
 namespace gui {
@@ -131,34 +127,34 @@ namespace gui {
         {
             if (ImGui::BeginTabItem("meshes"))
             {
-                for (Object *ob : obman.objects) {
+                for (Object *ob : object_manager.objects) {
                     if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
                         selectedObject = ob;
                         activeSelected = ob;
                     }
                 }
                 ImGui::Separator();
-                if (ImGui::Button("+")) obman.addNewModel("res/models/rat/rat2.obj");
+                if (ImGui::Button("+")) object_manager.addNewModel("res/models/rat/rat2.obj");
                 ImGui::SameLine();
                 if (ImGui::Button("-")) {
-                    obman.deleteObject(selectedObject);
+                    object_manager.deleteObject(selectedObject);
                     activeSelected = nullptr;
                 }
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("lights"))
             {
-                for (LightObject *ob : obman.lightObjects) {
+                for (LightObject *ob : object_manager.lightObjects) {
                     if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
                         selectedLight = ob;
                         activeSelected = ob;
                     }
                 }
                 ImGui::Separator();
-                if (ImGui::Button("+")) obman.addNewLight();
+                if (ImGui::Button("+")) object_manager.addNewLight();
                 ImGui::SameLine();
                 if (ImGui::Button("-")) {
-                    obman.deleteLight(selectedLight);
+                    object_manager.deleteLight(selectedLight);
                     activeSelected = nullptr;
                 }
                 ImGui::EndTabItem();
