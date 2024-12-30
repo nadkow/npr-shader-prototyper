@@ -115,10 +115,15 @@ public:
 
     void draw() {
         // draw all objects
+        // bind custom buffer to draw to
+        glBindFramebuffer(GL_FRAMEBUFFER, stack::gBuffer);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // TODO this draws every frame so make list of visible objects (update list when visibility changes) instead of if
         for (Object *obj : objects) {
             if (obj->visible) obj->draw();
         }
+        // render final image
+        block::finalize();
     }
 
 private:
