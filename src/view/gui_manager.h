@@ -1,6 +1,8 @@
 #ifndef NPRSPR_GUI_MANAGER_H
 #define NPRSPR_GUI_MANAGER_H
 
+#include "GraphEditorDelegate.h"
+
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
 namespace gui {
@@ -119,6 +121,25 @@ namespace gui {
         ImGui::NewFrame();
     }
 
+    void render_graph_editor() {
+        static GraphEditor::Options options;
+        static GraphEditorDelegate delegate;
+        static GraphEditor::ViewState viewState;
+        static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
+
+        ImGui::Begin("Graph Editor", NULL, 0);
+        if (ImGui::Button("Fit all nodes")) {
+            fit = GraphEditor::Fit_AllNodes;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Fit selected nodes")) {
+            fit = GraphEditor::Fit_SelectedNodes;
+        }
+        GraphEditor::Show(delegate, options, viewState, true, &fit);
+
+        ImGui::End();
+    }
+
     void render_object_list() {
         ImGui::Begin("Object list");
 
@@ -202,6 +223,7 @@ namespace gui {
         //ImGui::SetNextWindowSize({0, 0});
         draw_imguizmo();
         render_object_list();
+        render_graph_editor();
     }
 
     void imgui_end() {

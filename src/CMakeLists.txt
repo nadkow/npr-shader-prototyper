@@ -29,7 +29,7 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${ASSETS_FILES}
         rendering/StackState.h
 		logic/common.h
 		rendering/ObjectRenderer.h
-		rendering/RenderObject.h
+		view/GraphEditorDelegate.h
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)
@@ -50,6 +50,7 @@ target_link_libraries(${PROJECT_NAME} glfw)
 target_link_libraries(${PROJECT_NAME} imgui)
 target_link_libraries(${PROJECT_NAME} imgui_impl)
 target_link_libraries(${PROJECT_NAME} imguizmo)
+target_link_libraries(${PROJECT_NAME} graph_editor)
 target_link_libraries(${PROJECT_NAME} spdlog)
 target_link_libraries(${PROJECT_NAME} glm::glm)
 

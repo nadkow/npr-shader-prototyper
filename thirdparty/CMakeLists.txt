@@ -20,7 +20,9 @@ target_include_directories(stb_image PRIVATE ${STB_IMAGE_DIR})
 set(IMGUIZMO_DIR ${CMAKE_CURRENT_LIST_DIR}/imguizmo)
 set (imguizmo_SOURCE_DIR ${IMGUIZMO_DIR} CACHE INTERNAL "")
 add_library(imguizmo STATIC ${IMGUIZMO_DIR}/ImGuizmo.cpp)
+add_library(graph_editor STATIC ${IMGUIZMO_DIR}/GraphEditor.cpp)
 target_include_directories(imguizmo PRIVATE ${IMGUIZMO_DIR})
+target_include_directories(graph_editor PRIVATE ${IMGUIZMO_DIR})
 
 # ImGui implementations
 set(IMGUI_IMPL_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui_impl)
@@ -43,6 +45,7 @@ add_library(imgui STATIC ${imgui_SOURCE_DIR}/imgui.cpp
 					     ${imgui_SOURCE_DIR}/imgui_widgets.cpp)
 
 target_include_directories(imguizmo PRIVATE ${imgui_SOURCE_DIR})
+target_include_directories(graph_editor PRIVATE ${imgui_SOURCE_DIR})
 target_include_directories(imgui_impl PRIVATE ${imgui_SOURCE_DIR} ${glfw_SOURCE_DIR})
 
 set_target_properties(glad
@@ -53,6 +56,7 @@ set_target_properties(glad
 					  imgui
 					  imgui_impl
                       imguizmo
+					  graph_editor
                       spdlog PROPERTIES FOLDER "thirdparty")
 
 if (TARGET zlibstatic)
