@@ -43,7 +43,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     }
 
     void RightClick(GraphEditor::NodeIndex nodeIndex, GraphEditor::SlotIndex slotIndexInput, GraphEditor::SlotIndex slotIndexOutput) override
-    {
+    { //add new node
     }
 
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
@@ -101,17 +101,6 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
 
     // Graph datas
     static inline const GraphEditor::Template mTemplates[] = {
-            {
-                    IM_COL32(160, 160, 180, 255),
-                    IM_COL32(100, 100, 140, 255),
-                    IM_COL32(110, 110, 150, 255),
-                    1,
-                    Array{"MyInput"},
-                    nullptr,
-                    2,
-                    Array{"MyOutput0", "MyOuput1"},
-                    nullptr
-            },
             // final output node template
             {
                     IM_COL32(180, 160, 160, 255),
@@ -119,9 +108,21 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     IM_COL32(150, 110, 110, 255),
                     2,
                     Array{"Layer 1", "Layer 2"},
-                    Array{ IM_COL32(200,100,100,255), IM_COL32(100,200,100,255), IM_COL32(100,100,200,255) },
+                    Array{ IM_COL32(200,100,100,255), IM_COL32(100,200,100,255)},
                     0,
                     nullptr,
+                    nullptr
+            },
+            // unlit
+            {
+                    IM_COL32(160, 160, 180, 255),
+                    IM_COL32(100, 100, 140, 255),
+                    IM_COL32(110, 110, 150, 255),
+                    1,
+                    Array{"Color"},
+                    nullptr,
+                    1,
+                    Array{"Color"},
                     nullptr
             }
     };
@@ -136,22 +137,14 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
 
     std::vector<Node> mNodes = {
             {
-                    "My Node 0",
-                    0,
+                    block::passes_names[block::FLAT].c_str(),
+                    block::FLAT,
                     0, 0,
                     false
             },
-
             {
-                    "My Node 1",
-                    0,
-                    400, 0,
-                    false
-            },
-
-            {
-                    "Output",
-                    1,
+                    block::passes_names[block::PREPARE].c_str(),
+                    block::PREPARE,
                     400, 400,
                     false
             }

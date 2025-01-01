@@ -24,6 +24,10 @@
 #include <iostream>
 
 #include "logic/common.h"
+#include "rendering/Model.h"
+#include "logic/Node.h"
+#include "logic/ShaderStack.h"
+#include "view/GraphEditorDelegate.h"
 #include "logic/Object.h"
 
 ObjectManager object_manager;
@@ -46,7 +50,7 @@ int main(int, char **) {
 
     //load default 3d model
     object_manager = ObjectManager();
-    object_manager.importModel("res/models/rat/rat2.obj");
+    object_manager.addNewModel("res/models/rat/rat2.obj");
     object_manager.createLightObject();
 
     //load files

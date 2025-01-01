@@ -1,8 +1,6 @@
 #ifndef NPRSPR_GUI_MANAGER_H
 #define NPRSPR_GUI_MANAGER_H
 
-#include "GraphEditorDelegate.h"
-
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
 namespace gui {
@@ -11,6 +9,10 @@ namespace gui {
     Object *selectedObject = nullptr;
     LightObject *selectedLight = nullptr;
     GeneralObject *activeSelected = nullptr;
+
+    static GraphEditor::Options options;
+    static GraphEditor::ViewState viewState;
+    static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
 
     static void glfw_error_callback(int error, const char *description) {
         fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -122,10 +124,6 @@ namespace gui {
     }
 
     void render_graph_editor() {
-        static GraphEditor::Options options;
-        static GraphEditorDelegate delegate;
-        static GraphEditor::ViewState viewState;
-        static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
 
         ImGui::Begin("Graph Editor", NULL, 0);
         if (ImGui::Button("Fit all nodes")) {
@@ -135,7 +133,8 @@ namespace gui {
         if (ImGui::Button("Fit selected nodes")) {
             fit = GraphEditor::Fit_SelectedNodes;
         }
-        GraphEditor::Show(delegate, options, viewState, true, &fit);
+        if (selectedObject)
+        GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
 
         ImGui::End();
     }

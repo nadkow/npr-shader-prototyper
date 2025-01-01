@@ -3,10 +3,6 @@
 
 #include <utility>
 
-#include "../rendering/Model.h"
-#include "Node.h"
-#include "ShaderStack.h"
-
 enum lightType {
     directional, point
 };
@@ -31,6 +27,7 @@ class Object : public GeneralObject {
 public:
 
     std::string filename;
+    GraphEditorDelegate delegate;
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
@@ -97,16 +94,12 @@ public:
     std::vector<Object *> objects;
     std::vector<LightObject *> lightObjects;
 
-    void importModel(const std::string &filename) {
-        objects.push_back(new Object(filename));
-    }
-
     void createLightObject() {
         lightObjects.push_back(new LightObject());
     }
 
     void addNewModel(const std::string &filename) {
-        importModel(filename);
+        objects.push_back(new Object(filename));
     }
 
     void deleteObject(Object *ob) {
@@ -129,6 +122,10 @@ public:
         for (Object *obj: objects) {
             if (obj->visible) obj->draw();
         }
+    }
+
+    void draw(int objectIndex) {
+        objects[objectIndex]->draw();
     }
 
 private:

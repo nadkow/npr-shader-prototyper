@@ -13,12 +13,12 @@ public:
     ShaderStack() = default;
 
     void draw() {
-        for (const auto &render_pass: blocks) render_pass();
+        for (const auto &render_pass: blocks) block::passes[render_pass]();
     }
 
 private:
 
-    std::vector<std::function<void()>> blocks = {prepare};
+    std::vector<pass_name> blocks = {PREPARE};
 
 };
 

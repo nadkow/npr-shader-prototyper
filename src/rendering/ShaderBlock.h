@@ -5,6 +5,14 @@
 
 namespace block {
 
+    // optional passes
+    void prepare();
+    void flat();
+
+    std::vector<std::function<void()>> passes = {prepare, flat};
+    std::vector<std::string> passes_names = {"prepare", "flat color"};
+    enum pass_name {PREPARE, FLAT};
+
     ShaderProgram prepareProgram, flatProgram, finalizeProgram;
     unsigned int quadVAO, quadVBO;
 

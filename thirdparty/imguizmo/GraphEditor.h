@@ -71,10 +71,10 @@ struct Options
     float mNodeSlotHoverFactor{ 1.2f }; // increase size when hovering
     float mMinZoom{ 0.2f }, mMaxZoom { 1.1f };
     float mSnap{ 5.f };
-    bool mDisplayLinksAsCurves{ true }; // false is straight and 45deg lines
+    bool mDisplayLinksAsCurves{ false }; // false is straight and 45deg lines
     bool mAllowQuadSelection{ true }; // multiple selection using drag and drop
     bool mRenderGrid{ true }; // grid or nothing
-    bool mDrawIONameOnHover{ true }; // only draw node input/output when hovering
+    bool mDrawIONameOnHover{ false }; // only draw node input/output when hovering
 };
 
 // View state: scroll position and zoom factor
