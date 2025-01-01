@@ -184,71 +184,9 @@ static void DisplayLinks(Delegate& delegate,
         bool highlightCons = hoveredNode == link.mInputNodeIndex || hoveredNode == link.mOutputNodeIndex;
         uint32_t col = delegate.GetTemplate(nodeInput.mTemplateIndex).mHeaderColor | (highlightCons ? 0xF0F0F0 : 0);
 
-            // display links as straight lines
-            std::array<ImVec2, 6> pts;
-            int ptCount = 0;
-            ImVec2 dif = p2 - p1;
-
-            ImVec2 p1a, p1b;
-            const float limitx = 12.f * factor;
-            if (dif.x < limitx)
-            {
-                ImVec2 p10 = p1 + ImVec2(limitx, 0.f);
-                ImVec2 p20 = p2 - ImVec2(limitx, 0.f);
-
-                dif = p20 - p10;
-                p1a = p10 + ImVec2(0.f, dif.y * 0.5f);
-                p1b = p1a + ImVec2(dif.x, 0.f);
-
-                pts = { p1, p10, p1a, p1b, p20, p2 };
-                ptCount = 6;
-            }
-            else
-            {
-                if (fabsf(dif.y) < 1.f)
-                {
-                    pts = { p1, (p1 + p2) * 0.5f, p2 };
-                    ptCount = 3;
-                }
-                else
-                {
-                    if (fabsf(dif.y) < 10.f)
-                    {
-                        if (fabsf(dif.x) > fabsf(dif.y))
-                        {
-                            p1a = p1 + ImVec2(fabsf(fabsf(dif.x) - fabsf(dif.y)) * 0.5f * sign(dif.x), 0.f);
-                            p1b = p1a + ImVec2(fabsf(dif.y) * sign(dif.x), dif.y);
-                        }
-                        else
-                        {
-                            p1a = p1 + ImVec2(0.f, fabsf(fabsf(dif.y) - fabsf(dif.x)) * 0.5f * sign(dif.y));
-                            p1b = p1a + ImVec2(dif.x, fabsf(dif.x) * sign(dif.y));
-                        }
-                    }
-                    else
-                    {
-                        if (fabsf(dif.x) > fabsf(dif.y))
-                        {
-                            float d = fabsf(dif.y) * sign(dif.x) * 0.5f;
-                            p1a = p1 + ImVec2(d, dif.y * 0.5f);
-                            p1b = p1a + ImVec2(fabsf(fabsf(dif.x) - fabsf(d) * 2.f) * sign(dif.x), 0.f);
-                        }
-                        else
-                        {
-                            float d = fabsf(dif.x) * sign(dif.y) * 0.5f;
-                            p1a = p1 + ImVec2(dif.x * 0.5f, d);
-                            p1b = p1a + ImVec2(0.f, fabsf(fabsf(dif.y) - fabsf(d) * 2.f) * sign(dif.y));
-                        }
-                    }
-                    pts = { p1, p1a, p1b, p2 };
-                    ptCount = 4;
-                }
-            }
-            float highLightFactor = factor * (highlightCons ? 2.0f : 1.f);
-            for (int pass = 0; pass < 2; pass++)
-            {
-                drawList->AddPolyline(pts.data(), ptCount, pass ? col : 0xFF000000, false, (pass ? options.mLineThickness : (options.mLineThickness * 1.5f)) * highLightFactor);
-            }
+        // curves
+        drawList->AddBezierCubic(p1, p1 + ImVec2(50, 0) * factor, p2 + ImVec2(-50, 0) * factor, p2, 0xFF000000, options.mLineThickness * 1.5f * factor);
+        drawList->AddBezierCubic(p1, p1 + ImVec2(50, 0) * factor, p2 + ImVec2(-50, 0) * factor, p2, col, options.mLineThickness * 1.5f * factor);
 
     }
 }
