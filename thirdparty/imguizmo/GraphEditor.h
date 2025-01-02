@@ -60,18 +60,18 @@ struct Options
     ImU32 mQuadSelectionBorder{ IM_COL32(255, 32, 32, 255) }; // quad selection border color
     ImU32 mDefaultSlotColor{ IM_COL32(128, 128, 128, 255) }; // when no color is provided in node template, use this value
     ImU32 mFrameFocus{ IM_COL32(64, 128, 255, 255) }; // rectangle border when graph editor has focus
-    float mLineThickness{ 5 }; // links width in pixels when zoom value is 1
+    float mLineThickness{ 3 }; // links width in pixels when zoom value is 1
     float mGridSize{ 64.f }; // background grid size in pixels when zoom value is 1
     float mRounding{ 3.f }; // rounding at node corners
     float mZoomRatio{ 0.1f }; // factor per mouse wheel delta
     float mZoomLerpFactor{ 0.25f }; // the smaller, the smoother
     float mBorderSelectionThickness{ 6.f }; // thickness of selection border around nodes
     float mBorderThickness{ 6.f }; // thickness of selection border around nodes
-    float mNodeSlotRadius{ 8.f }; // circle radius for inputs and outputs
+    float mNodeSlotRadius{ 6.f }; // circle radius for inputs and outputs
     float mNodeSlotHoverFactor{ 1.2f }; // increase size when hovering
     float mMinZoom{ 0.2f }, mMaxZoom { 1.1f };
     float mSnap{ 5.f };
-    bool mDisplayLinksAsCurves{ false }; // false is straight and 45deg lines
+    bool mDisplayLinksAsCurves{ true }; // false is straight and 45deg lines
     bool mAllowQuadSelection{ true }; // multiple selection using drag and drop
     bool mRenderGrid{ true }; // grid or nothing
     bool mDrawIONameOnHover{ false }; // only draw node input/output when hovering

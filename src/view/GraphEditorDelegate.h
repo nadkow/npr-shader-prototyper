@@ -1,6 +1,10 @@
 #ifndef NPRSPR_GRAPHEDITORDELEGATE_H
 #define NPRSPR_GRAPHEDITORDELEGATE_H
 
+#define BG_COLOR IM_COL32(60, 60, 60, 255)
+#define OVER_BG_COLOR IM_COL32(70, 70, 70, 255)
+#define SHADER_SLOT_COLOR IM_COL32(100, 240, 100, 255)
+
 template <typename T, std::size_t N>
 struct Array
 {
@@ -103,12 +107,12 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     static inline const GraphEditor::Template mTemplates[] = {
             // final output node template
             {
-                    IM_COL32(180, 160, 160, 255),
-                    IM_COL32(140, 100, 100, 255),
-                    IM_COL32(150, 110, 110, 255),
+                    IM_COL32(160, 190, 160, 255),
+                    BG_COLOR,
+                    OVER_BG_COLOR,
                     2,
-                    Array{"Layer 1", "Layer 2"},
-                    Array{ IM_COL32(200,100,100,255), IM_COL32(100,200,100,255)},
+                    Array{"Shader 1", "Shader 2"},
+                    Array{ SHADER_SLOT_COLOR, SHADER_SLOT_COLOR},
                     0,
                     nullptr,
                     nullptr
@@ -122,8 +126,8 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{"Color"},
                     nullptr,
                     1,
-                    Array{"Color"},
-                    nullptr
+                    Array{"Shader"},
+                    Array{ SHADER_SLOT_COLOR}
             }
     };
 
