@@ -133,6 +133,9 @@ namespace gui {
         if (ImGui::Button("Fit selected nodes")) {
             fit = GraphEditor::Fit_SelectedNodes;
         }
+        ImGui::SameLine();
+        ImGui::Checkbox("Hide node slot names", &options.mDrawIONameOnHover);
+
         if (selectedObject)
             GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
 
