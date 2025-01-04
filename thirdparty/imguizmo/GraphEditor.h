@@ -96,6 +96,7 @@ struct Template
     ImU8 mOutputCount;
     const char** mOutputNames; // can be nullptr. No text displayed.
     ImU32* mOutputColors; // can be nullptr, default slot color will be used.
+    float mHeight;
 };
 
 struct Node
@@ -125,7 +126,7 @@ struct Delegate
     virtual void DelLink(LinkIndex linkIndex) = 0;
     
     // user is responsible for clipping
-    virtual void CustomDraw(ImDrawList* drawList, ImRect rectangle, NodeIndex nodeIndex) = 0;
+    virtual void CustomDraw(ImDrawList* drawList, float factor, ImRect rectangle, NodeIndex nodeIndex) = 0;
     
     // use mouse position to open context menu
     // if nodeIndex != -1, right click happens on the specified node

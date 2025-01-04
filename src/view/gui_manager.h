@@ -134,7 +134,7 @@ namespace gui {
             fit = GraphEditor::Fit_SelectedNodes;
         }
         if (selectedObject)
-        GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
+            GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
 
         ImGui::End();
     }

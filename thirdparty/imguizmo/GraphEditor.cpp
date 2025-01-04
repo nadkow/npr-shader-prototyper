@@ -587,9 +587,9 @@ static bool DrawNode(ImDrawList* drawList,
     drawList->PopClipRect();
 
     ImRect customDrawRect(nodeRectangleMin + ImVec2(options.mRounding, 20 + options.mRounding), nodeRectangleMax - ImVec2(options.mRounding, options.mRounding));
-    if (customDrawRect.Max.y > customDrawRect.Min.y && customDrawRect.Max.x > customDrawRect.Min.x)
+    if (customDrawRect.Max.y > customDrawRect.Min.y && customDrawRect.Max.x > customDrawRect.Min.x && factor > .5)
     {
-        delegate.CustomDraw(drawList, customDrawRect, nodeIndex);
+        delegate.CustomDraw(drawList, factor, customDrawRect, nodeIndex);
     }
 /*
     const ImTextureID bmpInfo = (ImTextureID)(uint64_t)delegate->GetBitmapInfo(nodeIndex).idx;
