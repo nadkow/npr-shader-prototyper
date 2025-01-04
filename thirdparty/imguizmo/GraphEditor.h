@@ -66,8 +66,8 @@ struct Options
     float mZoomRatio{ 0.1f }; // factor per mouse wheel delta
     float mZoomLerpFactor{ 0.25f }; // the smaller, the smoother
     float mBorderSelectionThickness{ 6.f }; // thickness of selection border around nodes
-    float mBorderThickness{ 6.f }; // thickness of selection border around nodes
-    float mNodeSlotRadius{ 6.f }; // circle radius for inputs and outputs
+    float mBorderThickness{ 4.f }; // thickness of selection border around nodes
+    float mNodeSlotRadius{ 4.f }; // circle radius for inputs and outputs
     float mNodeSlotHoverFactor{ 1.2f }; // increase size when hovering
     float mMinZoom{ 0.2f }, mMaxZoom { 1.1f };
     float mSnap{ 5.f };

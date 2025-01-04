@@ -224,7 +224,8 @@ static void HandleQuadSelection(Delegate& delegate, ImDrawList* drawList, const 
             {
                 const auto node = delegate.GetNode(nodeIndex);
                 ImVec2 nodeRectangleMin = offset + node.mRect.Min * factor;
-                ImVec2 nodeRectangleMax = nodeRectangleMin + node.mRect.GetSize() * factor;
+                // node header size
+                ImVec2 nodeRectangleMax = nodeRectangleMin + ImVec2(node.mRect.GetWidth(), 20) * factor;
                 if (selectionRect.Overlaps(ImRect(nodeRectangleMin, nodeRectangleMax)))
                 {
                     if (io.KeyCtrl)
@@ -490,7 +491,8 @@ static bool DrawNode(ImDrawList* drawList,
     */
 
     ImGui::SetCursorScreenPos(nodeRectangleMin);
-    float maxHeight = ImMin(viewPort.Max.y, nodeRectangleMin.y + nodeSize.y) - nodeRectangleMin.y;
+    // button only on node header
+    float maxHeight = ImMin(viewPort.Max.y, nodeRectangleMin.y + 20) - nodeRectangleMin.y;
     float maxWidth = ImMin(viewPort.Max.x, nodeRectangleMin.x + nodeSize.x) - nodeRectangleMin.x;
     ImGui::InvisibleButton("node", ImVec2(maxWidth, maxHeight));
     // must be called right after creating the control we want to be able to move
