@@ -1,11 +1,14 @@
 #ifndef NPRSPR_GRAPHEDITORDELEGATE_H
 #define NPRSPR_GRAPHEDITORDELEGATE_H
 
-#include "CustomDrawTemplates.h"
+#include "NodeInstance.h"
 
+#define DEFAULT_HEAD_COLOR IM_COL32(80, 80, 110, 255)
+#define SHADER_HEAD_COLOR IM_COL32(80, 110, 80, 255)
 #define BG_COLOR IM_COL32(60, 60, 60, 255)
 #define OVER_BG_COLOR IM_COL32(70, 70, 70, 255)
 #define SHADER_SLOT_COLOR IM_COL32(100, 240, 100, 255)
+#define DEFAULT_SLOT_COLOR IM_COL32(180, 180, 190, 255)
 
 template <typename T, std::size_t N>
 struct Array
@@ -54,11 +57,14 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
 
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
     {
-        mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
+        if (NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex))
+            mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
     }
 
     void DelLink(GraphEditor::LinkIndex linkIndex) override
     {
+        GraphEditor::Link link = mLinks[linkIndex];
+        NodeInstance::disconnect(mNodes[link.mOutputNodeIndex].instance, link.mOutputSlotIndex);
         mLinks.erase(mLinks.begin() + linkIndex);
     }
 
@@ -108,28 +114,41 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     static inline const GraphEditor::Template mTemplates[] = {
             // final output node template
             {
-                    IM_COL32(160, 190, 160, 255),
+                    IM_COL32(110, 80, 80, 255),
                     BG_COLOR,
                     OVER_BG_COLOR,
                     2,
-                    Array{"Shader 1", "Shader 2"},
+                    Array{"Layer 1", "Layer 2"},
                     Array{ SHADER_SLOT_COLOR, SHADER_SLOT_COLOR},
                     0,
                     nullptr,
                     nullptr,
                     120
             },
-            // unlit
+            // unlit shader
             {
-                    IM_COL32(160, 160, 180, 255),
+                    SHADER_HEAD_COLOR,
                     BG_COLOR,
                     OVER_BG_COLOR,
                     1,
                     Array{"Color"},
-                    nullptr,
+                    Array{ DEFAULT_SLOT_COLOR},
                     1,
                     Array{"Shader"},
                     Array{ SHADER_SLOT_COLOR},
+                    80
+            },
+            // color
+            {
+                    DEFAULT_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    1,
+                    Array{"Color"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Color"},
+                    Array{ DEFAULT_SLOT_COLOR},
                     80
             }
     };
@@ -140,7 +159,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         GraphEditor::TemplateIndex templateIndex;
         float x, y;
         bool mSelected;
-        DrawTemplate* instance;
+        NodeInstance* instance;
     };
 
     std::vector<Node> mNodes = {
@@ -154,9 +173,23 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             {
                     block::passes_names[block::FLAT].c_str(),
                     block::FLAT,
-                    80, 80,
+                    200, 200,
                     false,
                     new DrawFlat()
+            },
+            {
+                    "color",
+                    2,
+                    80, 80,
+                    false,
+                    new ColorNode()
+            },
+            {
+                    "color",
+                    2,
+                    80, 80,
+                    false,
+                    new ColorNode()
             }
     };
 

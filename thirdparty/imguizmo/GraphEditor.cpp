@@ -182,7 +182,7 @@ static void DisplayLinks(Delegate& delegate,
             continue;
 
         bool highlightCons = hoveredNode == link.mInputNodeIndex || hoveredNode == link.mOutputNodeIndex;
-        uint32_t col = delegate.GetTemplate(nodeOutput.mTemplateIndex).mHeaderColor | (highlightCons ? 0xF0F0F0 : 0);
+        uint32_t col = delegate.GetTemplate(nodeInput.mTemplateIndex).mHeaderColor | (highlightCons ? 0xF0F0F0 : 0);
 
         // curves
         //drawList->AddBezierCubic(p1, p1 + ImVec2(50, 0) * factor, p2 + ImVec2(-50, 0) * factor, p2, 0xFF000000, options.mLineThickness * 1.5f * factor);
@@ -583,7 +583,7 @@ static bool DrawNode(ImDrawList* drawList,
                             nodeTemplate.mHeaderColor, options.mRounding);
 
     drawList->PushClipRect(nodeRectangleMin, ImVec2(nodeRectangleMax.x, nodeRectangleMin.y + 20), true);
-    drawList->AddText(nodeRectangleMin + ImVec2(2, 2), IM_COL32(0, 0, 0, 255), node.mName);
+    drawList->AddText(nodeRectangleMin + ImVec2(2, 2), IM_COL32(255, 255, 255, 240), node.mName);
     drawList->PopClipRect();
 
     ImRect customDrawRect(nodeRectangleMin + ImVec2(options.mRounding, 20 + options.mRounding), nodeRectangleMax - ImVec2(options.mRounding, options.mRounding));
