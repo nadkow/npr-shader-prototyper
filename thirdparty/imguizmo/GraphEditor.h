@@ -117,7 +117,7 @@ struct Link
 
 struct Delegate
 {
-    virtual bool AllowedLink(NodeIndex from, NodeIndex to) = 0;
+    virtual bool AllowedLink(NodeIndex from, SlotIndex fromSlot, NodeIndex to, SlotIndex toSlot) = 0;
 
     virtual void SelectNode(NodeIndex nodeIndex, bool selected) = 0;
     virtual void MoveSelectedNodes(const ImVec2 delta) = 0;

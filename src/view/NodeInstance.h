@@ -73,7 +73,7 @@ public:
 
     DrawFlat() {
         defaultInputs.push_back(color);
-        inputs.push_back(&color);
+        inputs.push_back(&defaultInputs[0]);
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -138,6 +138,88 @@ public:
 
     void updateConnect(int inSlot) override {
         //outputs[0] = inputs[0];
+    }
+
+    void updateDisconnect(int inSlot) override {
+
+    }
+};
+
+class FloatNode : public DataNodeInstance {
+
+public:
+
+    FloatNode() {
+        defaultInputs.emplace_back(1.f);
+        inputs.push_back(&defaultInputs[0]);
+        outputs.push_back(inputs[0]);
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::InputFloat("value", (float *) inputs[0]);
+    }
+
+    void updateConnect(int inSlot) override {
+        //outputs[0] = inputs[0];
+    }
+
+    void updateDisconnect(int inSlot) override {
+
+    }
+};
+
+class CombineVec4Node : public DataNodeInstance {
+
+public:
+    //output
+    dataType vec = ImVec4{.0, .0, .0, .0};
+    // default inputs
+    float x = 0;
+    float y = 0;
+    float z = 0;
+    float w = 0;
+
+    CombineVec4Node() {
+        defaultInputs.emplace_back(x);
+        defaultInputs.emplace_back(y);
+        defaultInputs.emplace_back(z);
+        defaultInputs.emplace_back(w);
+        inputs.push_back(&defaultInputs[0]);
+        inputs.push_back(&defaultInputs[1]);
+        inputs.push_back(&defaultInputs[2]);
+        inputs.push_back(&defaultInputs[3]);
+        outputs.push_back(&vec);
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::InputFloat("x", (float *) inputs[0]);
+        ImGui::InputFloat("y", (float *) inputs[1]);
+        ImGui::InputFloat("z", (float *) inputs[2]);
+        ImGui::InputFloat("w", (float *) inputs[3]);
+    }
+
+    void updateConnect(int inSlot) override {
+        /*
+        ImVec4 temp = std::get<ImVec4>(vec);
+        switch(inSlot) {
+            case 0:
+                temp.x = *inputs[0];
+                break;
+            case 1:
+                // code block
+                break;
+            case 2:
+                // code block
+                break;
+            case 3:
+                // code block
+                break;
+
+        }*/
     }
 
     void updateDisconnect(int inSlot) override {

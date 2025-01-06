@@ -28,9 +28,9 @@ template <typename T, typename ... U> Array(T, U...)->Array<T, 1 + sizeof...(U)>
 
 struct GraphEditorDelegate : public GraphEditor::Delegate
 {
-    bool AllowedLink(GraphEditor::NodeIndex from, GraphEditor::NodeIndex to) override
+    bool AllowedLink(GraphEditor::NodeIndex from, GraphEditor::SlotIndex slotIndexInput, GraphEditor::NodeIndex to, GraphEditor::SlotIndex slotIndexOutput) override
     {
-        return true;
+        return (NodeInstance::connect(mNodes[to].instance, slotIndexOutput, mNodes[from].instance, slotIndexInput));
     }
 
     void SelectNode(GraphEditor::NodeIndex nodeIndex, bool selected) override
@@ -57,8 +57,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
 
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
     {
-        if (NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex))
-            mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
+        mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
     }
 
     void DelLink(GraphEditor::LinkIndex linkIndex) override
@@ -150,6 +149,32 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{"Color"},
                     Array{ DEFAULT_SLOT_COLOR},
                     80
+            },
+            // float
+            {
+                    DEFAULT_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    1,
+                    Array{"Value"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Value"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    80
+            },
+            // combine vec4
+            {
+                    DEFAULT_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    4,
+                    Array{"x", "y", "z", "w"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Vec4"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    320
             }
     };
 
@@ -190,6 +215,20 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     80, 80,
                     false,
                     new ColorNode()
+            },
+            {
+                    "float",
+                    3,
+                    80, 80,
+                    false,
+                    new FloatNode()
+            },
+            {
+                    "combine vec4",
+                    4,
+                    80, 80,
+                    false,
+                    new CombineVec4Node()
             }
     };
 

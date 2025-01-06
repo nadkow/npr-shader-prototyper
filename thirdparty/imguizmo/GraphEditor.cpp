@@ -361,8 +361,8 @@ static bool HandleConnections(ImDrawList* drawList,
                         nl = Link{nodeIndex, closestConn, editingNodeIndex, editingSlotIndex};
                     else
                         nl = Link{editingNodeIndex, editingSlotIndex, nodeIndex, closestConn};
-
-                    if (!delegate.AllowedLink(nl.mOutputNodeIndex, nl.mInputNodeIndex))
+                    
+                    if (!delegate.AllowedLink(nl.mOutputNodeIndex, nl.mOutputSlotIndex, nl.mInputNodeIndex, nl.mInputSlotIndex))
                     {
                         break;
                     }
