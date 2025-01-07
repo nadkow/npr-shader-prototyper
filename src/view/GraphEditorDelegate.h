@@ -79,7 +79,8 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
 
     const GraphEditor::Template GetTemplate(GraphEditor::TemplateIndex index) override
     {
-        return mTemplates[index];
+        if (index) return mTemplates[index];
+        return finalNodeTemplate;
     }
 
     const size_t GetNodeCount() override
@@ -94,6 +95,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                 {
                         myNode.name,
                         myNode.templateIndex,
+                        // TODO rect height is got from mTemplates, which doesn't work for final node
                         ImRect(ImVec2(myNode.x, myNode.y), ImVec2(myNode.x + 120, myNode.y + mTemplates[myNode.templateIndex].mHeight)),
                         myNode.mSelected
                 };
@@ -109,9 +111,25 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         return mLinks[index];
     }
 
+    const char* finalNodeInputNames[64] = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Layer 5", "Layer 6", "Layer 7","Layer 8","Layer 9","Layer 10",
+                                           "Layer 11", "Layer 12", "Layer 13", "Layer 14", "Layer 15", "Layer 16", "Layer 17","Layer 18","Layer 19","Layer 20"};
+
+    GraphEditor::Template finalNodeTemplate = {
+            IM_COL32(110, 80, 80, 255),
+            BG_COLOR,
+            OVER_BG_COLOR,
+            2,
+            finalNodeInputNames,
+            nullptr,
+            0,
+            nullptr,
+            nullptr,
+            120
+    };
+
     // Graph datas
     static inline const GraphEditor::Template mTemplates[] = {
-            // final output node template
+            // final output node template PLACEHOLDER
             {
                     IM_COL32(110, 80, 80, 255),
                     BG_COLOR,
@@ -193,7 +211,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     block::PREPARE,
                     400, 400,
                     false,
-                    new DrawFinal()
+                    new DrawFinal(&finalNodeTemplate)
             },
             {
                     block::passes_names[block::FLAT].c_str(),

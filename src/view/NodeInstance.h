@@ -28,6 +28,7 @@ public:
                 return false;
             } else {
                 // shader to final output
+                inNode->updateConnect(inSlot);
                 return true;
             }
         }
@@ -36,7 +37,8 @@ public:
 
     // set the input slot of inNode to default value
     static void disconnect(NodeInstance* inNode, int inSlot) {
-        inNode->inputs[inSlot] = &(inNode->defaultInputs[inSlot]);
+        //inNode->inputs[inSlot] = &(inNode->defaultInputs[inSlot]);
+        inNode->updateDisconnect(inSlot);
     };
 
 private:
@@ -98,20 +100,26 @@ public:
 class DrawFinal : public NodeInstance {
 
 public:
-    DrawFinal() {
+    DrawFinal(GraphEditor::Template* t) {
         inputType = SHADER;
         outputType = NONE;
+        finalNodeTemplate = t;
     }
 
     void drawNode(ImRect rect, float factor) override {}
 
     void updateConnect(int inSlot) override {
-
+        finalNodeTemplate->mInputCount += 1;
+        finalNodeTemplate->mHeight += 80;
     }
 
     void updateDisconnect(int inSlot) override {
-
+        //finalNodeTemplate->mInputCount -= 1;
+        //finalNodeTemplate->mHeight -= 80;
     }
+
+private:
+    GraphEditor::Template* finalNodeTemplate;
 };
 
 /* DATA NODES */
