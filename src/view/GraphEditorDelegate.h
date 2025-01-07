@@ -91,12 +91,19 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     const GraphEditor::Node GetNode(GraphEditor::NodeIndex index) override
     {
         const auto& myNode = mNodes[index];
+        if (myNode.templateIndex)
         return GraphEditor::Node
                 {
                         myNode.name,
                         myNode.templateIndex,
-                        // TODO rect height is got from mTemplates, which doesn't work for final node
                         ImRect(ImVec2(myNode.x, myNode.y), ImVec2(myNode.x + 120, myNode.y + mTemplates[myNode.templateIndex].mHeight)),
+                        myNode.mSelected
+                };
+        return GraphEditor::Node
+                {
+                        myNode.name,
+                        myNode.templateIndex,
+                        ImRect(ImVec2(myNode.x, myNode.y), ImVec2(myNode.x + 120, myNode.y + finalNodeTemplate.mHeight)),
                         myNode.mSelected
                 };
     }

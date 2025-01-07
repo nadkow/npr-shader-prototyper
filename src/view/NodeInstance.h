@@ -109,8 +109,11 @@ public:
     void drawNode(ImRect rect, float factor) override {}
 
     void updateConnect(int inSlot) override {
-        finalNodeTemplate->mInputCount += 1;
-        finalNodeTemplate->mHeight += 80;
+        if (inSlot > lastOccupiedSlot) {
+            finalNodeTemplate->mInputCount += 1;
+            finalNodeTemplate->mHeight += 40;
+            lastOccupiedSlot = inSlot;
+        }
     }
 
     void updateDisconnect(int inSlot) override {
@@ -120,6 +123,7 @@ public:
 
 private:
     GraphEditor::Template* finalNodeTemplate;
+    int lastOccupiedSlot = 0;
 };
 
 /* DATA NODES */
