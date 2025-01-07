@@ -63,7 +63,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     void DelLink(GraphEditor::LinkIndex linkIndex) override
     {
         GraphEditor::Link link = mLinks[linkIndex];
-        NodeInstance::disconnect(mNodes[link.mOutputNodeIndex].instance, link.mOutputSlotIndex);
+        NodeInstance::disconnect(mNodes[link.mOutputNodeIndex].instance, link.mOutputSlotIndex, mNodes[link.mInputNodeIndex].instance, link.mInputSlotIndex);
         mLinks.erase(mLinks.begin() + linkIndex);
     }
 
@@ -195,7 +195,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     OVER_BG_COLOR,
                     4,
                     Array{"x", "y", "z", "w"},
-                    Array{ DEFAULT_SLOT_COLOR},
+                    Array{ DEFAULT_SLOT_COLOR, DEFAULT_SLOT_COLOR, DEFAULT_SLOT_COLOR, DEFAULT_SLOT_COLOR},
                     1,
                     Array{"Vec4"},
                     Array{ DEFAULT_SLOT_COLOR},

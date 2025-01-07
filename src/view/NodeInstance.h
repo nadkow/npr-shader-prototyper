@@ -7,10 +7,13 @@ class NodeInstance {
 
 public:
     using dataType = std::variant<int, float, ImVec2, ImVec4>;
-    std::vector<dataType*> inputs;
+    NodeInstance** inputs;
     std::vector<dataType> defaultInputs;
-    std::vector<dataType*> outputs;
+    NodeInstance** outputs;
+    std::vector<dataType> defaultOutputs;
     enum slotType {DATA, SHADER, NONE} inputType, outputType;
+
+    virtual ~NodeInstance() { delete[] inputs; delete[] outputs; }
 
     virtual void drawNode(ImRect rect, float factor) = 0;
 
@@ -20,8 +23,9 @@ public:
             if(inNode->inputType == DATA) {
                 // data to shader or data to data
                 // do data types match?
-                if (outNode->outputs[outSlot]->index() == inNode->inputs[inSlot]->index()) {
-                    inNode->inputs[inSlot] = outNode->outputs[outSlot];
+                if (outNode->defaultOutputs[outSlot].index() == inNode->defaultInputs[inSlot].index()) {
+                    inNode->inputs[inSlot] = outNode;
+                    outNode->outputs[outSlot] = inNode;
                     inNode->updateConnect(inSlot);
                     return true;
                 }
@@ -29,6 +33,7 @@ public:
             } else {
                 // shader to final output
                 inNode->updateConnect(inSlot);
+                inNode->inputs[inSlot] = outNode;
                 return true;
             }
         }
@@ -36,8 +41,9 @@ public:
     };
 
     // set the input slot of inNode to default value
-    static void disconnect(NodeInstance* inNode, int inSlot) {
-        //inNode->inputs[inSlot] = &(inNode->defaultInputs[inSlot]);
+    static void disconnect(NodeInstance* inNode, int inSlot, NodeInstance* outNode, int outSlot) {
+        inNode->inputs[inSlot] = nullptr;
+        outNode->outputs[outSlot] = nullptr;
         inNode->updateDisconnect(inSlot);
     };
 
@@ -74,23 +80,27 @@ public:
     dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
 
     DrawFlat() {
+        //inputs
+        inputs = new NodeInstance * [1];
+        inputs[0] = nullptr;
         defaultInputs.push_back(color);
-        inputs.push_back(&defaultInputs[0]);
+        // outputs
+        outputs = new NodeInstance * [1];
     };
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::ColorEdit4("Color", (float *) inputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */);
+        ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */);
 
     }
 
     void updateConnect(int inSlot) override {
-
+        // TODO update flags here
     }
 
     void updateDisconnect(int inSlot) override {
-
+        // TODO same
     }
 
 };
@@ -100,30 +110,42 @@ public:
 class DrawFinal : public NodeInstance {
 
 public:
+
     DrawFinal(GraphEditor::Template* t) {
         inputType = SHADER;
         outputType = NONE;
         finalNodeTemplate = t;
+
+        inputs = connectedNodes.data();
     }
 
     void drawNode(ImRect rect, float factor) override {}
 
     void updateConnect(int inSlot) override {
-        if (inSlot > lastOccupiedSlot) {
+        if (inSlot > lastOccupiedSlot && inSlot < 64) {
             finalNodeTemplate->mInputCount += 1;
             finalNodeTemplate->mHeight += 40;
             lastOccupiedSlot = inSlot;
+            // reserve space for new connection
+            connectedNodes.push_back(nullptr);
+            inputs = connectedNodes.data();
         }
     }
 
     void updateDisconnect(int inSlot) override {
-        //finalNodeTemplate->mInputCount -= 1;
-        //finalNodeTemplate->mHeight -= 80;
+        if (inSlot == lastOccupiedSlot) {
+            finalNodeTemplate->mInputCount -= 1;
+            finalNodeTemplate->mHeight -= 40;
+            connectedNodes.resize(lastOccupiedSlot+1);
+            inputs = connectedNodes.data();
+            lastOccupiedSlot -= 1;
+        }
     }
 
 private:
     GraphEditor::Template* finalNodeTemplate;
     int lastOccupiedSlot = 0;
+    std::vector<NodeInstance*> connectedNodes = {nullptr};
 };
 
 /* DATA NODES */
@@ -135,17 +157,20 @@ public:
     dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
 
     ColorNode() {
+        //inputs
+        inputs = new NodeInstance * [1];
+        inputs[0] = nullptr;
         defaultInputs.push_back(color);
-        inputs.push_back(&defaultInputs[0]);
-        outputs.push_back(inputs[0]);
+        // outputs
+        outputs = new NodeInstance * [1];
+        outputs[0] = nullptr;
+        defaultOutputs.push_back(color);
     };
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::ColorEdit4("Color", (float *) inputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
-        ImGui::ColorEdit4("Color default", (float *) &defaultInputs[0], ImGuiColorEditFlags_NoInputs );
-        ImGui::ColorEdit4("Color output", (float *) outputs[0], ImGuiColorEditFlags_NoInputs );
+        ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
     }
 
     void updateConnect(int inSlot) override {
@@ -162,15 +187,20 @@ class FloatNode : public DataNodeInstance {
 public:
 
     FloatNode() {
+        //inputs
+        inputs = new NodeInstance * [1];
+        inputs[0] = nullptr;
         defaultInputs.emplace_back(1.f);
-        inputs.push_back(&defaultInputs[0]);
-        outputs.push_back(inputs[0]);
+        // outputs
+        outputs = new NodeInstance * [1];
+        outputs[0] = nullptr;
+        defaultOutputs.emplace_back(1.f);
     };
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::InputFloat("value", (float *) inputs[0]);
+        ImGui::InputFloat("value", (float *) &defaultInputs[0]);
     }
 
     void updateConnect(int inSlot) override {
@@ -194,24 +224,25 @@ public:
     float w = 0;
 
     CombineVec4Node() {
+        //inputs
+        inputs = new NodeInstance * [4]{};
         defaultInputs.emplace_back(x);
         defaultInputs.emplace_back(y);
         defaultInputs.emplace_back(z);
         defaultInputs.emplace_back(w);
-        inputs.push_back(&defaultInputs[0]);
-        inputs.push_back(&defaultInputs[1]);
-        inputs.push_back(&defaultInputs[2]);
-        inputs.push_back(&defaultInputs[3]);
-        outputs.push_back(&vec);
+        // outputs
+        outputs = new NodeInstance * [1];
+        outputs[0] = nullptr;
+        defaultOutputs.emplace_back(vec);
     };
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::InputFloat("x", (float *) inputs[0]);
-        ImGui::InputFloat("y", (float *) inputs[1]);
-        ImGui::InputFloat("z", (float *) inputs[2]);
-        ImGui::InputFloat("w", (float *) inputs[3]);
+        ImGui::InputFloat("x", (float *) &defaultInputs[0]);
+        ImGui::InputFloat("y", (float *) &defaultInputs[1]);
+        ImGui::InputFloat("z", (float *) &defaultInputs[2]);
+        ImGui::InputFloat("w", (float *) &defaultInputs[3]);
     }
 
     void updateConnect(int inSlot) override {

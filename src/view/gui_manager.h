@@ -162,6 +162,7 @@ namespace gui {
                 if (ImGui::Button("-")) {
                     object_manager.deleteObject(selectedObject);
                     activeSelected = nullptr;
+                    selectedObject = nullptr;
                 }
                 ImGui::EndTabItem();
             }
@@ -179,6 +180,7 @@ namespace gui {
                 if (ImGui::Button("-")) {
                     object_manager.deleteLight(selectedLight);
                     activeSelected = nullptr;
+                    selectedLight = nullptr;
                 }
                 ImGui::EndTabItem();
             }

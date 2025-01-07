@@ -58,7 +58,7 @@ struct Options
     ImU32 mNodeBorderColor{ IM_COL32(100, 100, 100, 0) }; // node border color when it's not selected
     ImU32 mQuadSelection{ IM_COL32(255, 32, 32, 64) }; // quad selection inside color
     ImU32 mQuadSelectionBorder{ IM_COL32(255, 32, 32, 255) }; // quad selection border color
-    ImU32 mDefaultSlotColor{ IM_COL32(80, 110, 80, 255) }; // when no color is provided in node template, use this value
+    ImU32 mDefaultSlotColor{ IM_COL32(100, 240, 100, 255) }; // when no color is provided in node template, use this value
     ImU32 mFrameFocus{ IM_COL32(64, 128, 255, 255) }; // rectangle border when graph editor has focus
     float mLineThickness{ 3 }; // links width in pixels when zoom value is 1
     float mGridSize{ 64.f }; // background grid size in pixels when zoom value is 1
