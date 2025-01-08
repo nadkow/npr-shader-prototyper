@@ -9,11 +9,12 @@ public:
     using dataType = std::variant<int, float, ImVec2, ImVec4>;
     NodeInstance** inputs;
     std::vector<dataType> defaultInputs;
-    NodeInstance** outputs;
+    std::vector<NodeInstance*>* outputs;
     std::vector<dataType> defaultOutputs;
+    bool* outputDirtyFlags = nullptr;
     enum slotType {DATA, SHADER, NONE} inputType, outputType;
 
-    virtual ~NodeInstance() { delete[] inputs; delete[] outputs;}
+    virtual ~NodeInstance() { delete[] inputs; delete[] outputs; delete[] outputDirtyFlags;}
 
     virtual void drawNode(ImRect rect, float factor) = 0;
 
@@ -21,13 +22,13 @@ public:
 
     // inNode - receiving node, outNode - outputting node
     static bool connect(NodeInstance* outNode, int outSlot, NodeInstance* inNode, int inSlot) {
-        if (inNode->inputType == outNode->outputType) {
+        if (inNode->inputType == outNode->outputType && inNode != outNode) {
             if(inNode->inputType == DATA) {
                 // data to shader or data to data
                 // do data types match?
                 if (outNode->defaultOutputs[outSlot].index() == inNode->defaultInputs[inSlot].index()) {
                     inNode->inputs[inSlot] = outNode;
-                    outNode->outputs[outSlot] = inNode;
+                    outNode->outputs[outSlot].push_back(inNode);
                     inNode->updateConnect(inSlot);
                     return true;
                 }
@@ -45,7 +46,7 @@ public:
     // set the input slot of inNode to default value
     static void disconnect(NodeInstance* inNode, int inSlot, NodeInstance* outNode, int outSlot) {
         inNode->inputs[inSlot] = nullptr;
-        outNode->outputs[outSlot] = nullptr;
+        outNode->deleteConnection(outSlot, inNode);
         inNode->updateDisconnect(inSlot);
     };
 
@@ -53,6 +54,11 @@ protected:
 
     virtual void updateConnect(int inSlot) = 0;
     virtual void updateDisconnect(int inSlot) = 0;
+
+    void deleteConnection(int outSlot, NodeInstance* inNode) {
+        auto it = std::remove(outputs[outSlot].begin(), outputs[outSlot].end(), inNode);
+        outputs[outSlot].erase(it, outputs[outSlot].end());
+    }
 
     void triggerEvent() {
         NodeEvent ev(this);
@@ -95,11 +101,10 @@ public:
 
     DrawFlat() {
         //inputs
-        inputs = new NodeInstance * [inputCount];
-        inputs[0] = nullptr;
+        inputs = new NodeInstance * [inputCount]{};
         defaultInputs.push_back(color);
         // outputs
-        outputs = new NodeInstance * [1];
+        outputs = new std::vector<NodeInstance*>[1]{};
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -177,13 +182,12 @@ public:
 
     ColorNode() {
         //inputs
-        inputs = new NodeInstance * [inputCount];
-        inputs[0] = nullptr;
+        inputs = new NodeInstance * [inputCount]{};
         defaultInputs.push_back(color);
         // outputs
-        outputs = new NodeInstance * [outputCount];
-        outputs[0] = nullptr;
+        outputs = new std::vector<NodeInstance*>[outputCount]{};
         defaultOutputs.push_back(color);
+        outputDirtyFlags = new bool[outputCount];
     }
 
     int getOutputCount() override {
@@ -213,13 +217,12 @@ public:
 
     FloatNode() {
         //inputs
-        inputs = new NodeInstance * [inputCount];
-        inputs[0] = nullptr;
+        inputs = new NodeInstance * [inputCount]{};
         defaultInputs.emplace_back(1.f);
         // outputs
-        outputs = new NodeInstance * [outputCount];
-        outputs[0] = nullptr;
+        outputs = new std::vector<NodeInstance*>[outputCount]{};
         defaultOutputs.emplace_back(1.f);
+        outputDirtyFlags = new bool[outputCount];
     };
 
     int getOutputCount() override {
@@ -262,9 +265,9 @@ public:
         defaultInputs.emplace_back(z);
         defaultInputs.emplace_back(w);
         // outputs
-        outputs = new NodeInstance * [outputCount];
-        outputs[0] = nullptr;
+        outputs = new std::vector<NodeInstance*>[outputCount]{};
         defaultOutputs.emplace_back(vec);
+        outputDirtyFlags = new bool[outputCount];
     };
 
     int getOutputCount() override {
