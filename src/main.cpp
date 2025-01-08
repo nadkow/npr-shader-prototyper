@@ -27,7 +27,10 @@
 #include "rendering/Model.h"
 #include "logic/Node.h"
 #include "logic/ShaderStack.h"
+#include "events/event_manager.h"
+#include "events/NodeEvent.h"
 #include "view/GraphEditorDelegate.h"
+#include "logic/GraphManager.h"
 #include "logic/Object.h"
 
 ObjectManager object_manager;
@@ -48,13 +51,16 @@ int main(int, char **) {
     glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
 
+    //load files
+    files::readModelFiles();
+
     //load default 3d model
     object_manager = ObjectManager();
     object_manager.addNewModel("res/models/rat/rat2.obj");
     object_manager.createLightObject();
 
-    //load files
-    files::readModelFiles();
+    GraphManager graph_manager = GraphManager();
+    events::addListener(&graph_manager);
 
     // Main loop
     while (!glfwWindowShouldClose(gui::window)) {

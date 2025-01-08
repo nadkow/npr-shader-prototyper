@@ -13,9 +13,11 @@ public:
     std::vector<dataType> defaultOutputs;
     enum slotType {DATA, SHADER, NONE} inputType, outputType;
 
-    virtual ~NodeInstance() { delete[] inputs; delete[] outputs; }
+    virtual ~NodeInstance() { delete[] inputs; delete[] outputs;}
 
     virtual void drawNode(ImRect rect, float factor) = 0;
+
+    virtual int getOutputCount() = 0;
 
     // inNode - receiving node, outNode - outputting node
     static bool connect(NodeInstance* outNode, int outSlot, NodeInstance* inNode, int inSlot) {
@@ -47,18 +49,29 @@ public:
         inNode->updateDisconnect(inSlot);
     };
 
-private:
+protected:
 
     virtual void updateConnect(int inSlot) = 0;
     virtual void updateDisconnect(int inSlot) = 0;
+
+    void triggerEvent() {
+        NodeEvent ev(this);
+        events::fireEvent(&ev);
+    }
 };
 
 // base class for shader nodes
 class ShaderNodeInstance : public NodeInstance {
 public:
+
     ShaderNodeInstance() {
          inputType = DATA;
          outputType = SHADER;
+    }
+
+    int getOutputCount() override {
+        // the stream ends at shader nodes
+        return 0;
     }
 };
 
@@ -76,12 +89,13 @@ public:
 class DrawFlat : public ShaderNodeInstance {
 
 public:
+    static constexpr int inputCount = 1;
     // default value for unconnected socket
     dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
 
     DrawFlat() {
         //inputs
-        inputs = new NodeInstance * [1];
+        inputs = new NodeInstance * [inputCount];
         inputs[0] = nullptr;
         defaultInputs.push_back(color);
         // outputs
@@ -97,10 +111,12 @@ public:
 
     void updateConnect(int inSlot) override {
         // TODO update flags here
+        triggerEvent();
     }
 
     void updateDisconnect(int inSlot) override {
         // TODO same
+        triggerEvent();
     }
 
 };
@@ -120,6 +136,7 @@ public:
     }
 
     void drawNode(ImRect rect, float factor) override {}
+    int getOutputCount() override { return 0;}
 
     void updateConnect(int inSlot) override {
         if (inSlot > lastOccupiedSlot && inSlot < 64) {
@@ -153,19 +170,25 @@ private:
 class ColorNode : public DataNodeInstance {
 
 public:
+    static constexpr int inputCount = 1;
+    static constexpr int outputCount = 1;
     // default value for unconnected socket
     dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
 
     ColorNode() {
         //inputs
-        inputs = new NodeInstance * [1];
+        inputs = new NodeInstance * [inputCount];
         inputs[0] = nullptr;
         defaultInputs.push_back(color);
         // outputs
-        outputs = new NodeInstance * [1];
+        outputs = new NodeInstance * [outputCount];
         outputs[0] = nullptr;
         defaultOutputs.push_back(color);
-    };
+    }
+
+    int getOutputCount() override {
+        return outputCount;
+    }
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
@@ -174,28 +197,34 @@ public:
     }
 
     void updateConnect(int inSlot) override {
-        //outputs[0] = inputs[0];
+        triggerEvent();
     }
 
     void updateDisconnect(int inSlot) override {
-
+        triggerEvent();
     }
 };
 
 class FloatNode : public DataNodeInstance {
 
 public:
+    static constexpr int inputCount = 1;
+    static constexpr int outputCount = 1;
 
     FloatNode() {
         //inputs
-        inputs = new NodeInstance * [1];
+        inputs = new NodeInstance * [inputCount];
         inputs[0] = nullptr;
         defaultInputs.emplace_back(1.f);
         // outputs
-        outputs = new NodeInstance * [1];
+        outputs = new NodeInstance * [outputCount];
         outputs[0] = nullptr;
         defaultOutputs.emplace_back(1.f);
     };
+
+    int getOutputCount() override {
+        return outputCount;
+    }
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
@@ -204,17 +233,19 @@ public:
     }
 
     void updateConnect(int inSlot) override {
-        //outputs[0] = inputs[0];
+        triggerEvent();
     }
 
     void updateDisconnect(int inSlot) override {
-
+        triggerEvent();
     }
 };
 
 class CombineVec4Node : public DataNodeInstance {
 
 public:
+    static constexpr int inputCount = 4;
+    static constexpr int outputCount = 1;
     //output
     dataType vec = ImVec4{.0, .0, .0, .0};
     // default inputs
@@ -225,16 +256,20 @@ public:
 
     CombineVec4Node() {
         //inputs
-        inputs = new NodeInstance * [4]{};
+        inputs = new NodeInstance * [inputCount]{};
         defaultInputs.emplace_back(x);
         defaultInputs.emplace_back(y);
         defaultInputs.emplace_back(z);
         defaultInputs.emplace_back(w);
         // outputs
-        outputs = new NodeInstance * [1];
+        outputs = new NodeInstance * [outputCount];
         outputs[0] = nullptr;
         defaultOutputs.emplace_back(vec);
     };
+
+    int getOutputCount() override {
+        return outputCount;
+    }
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
@@ -263,10 +298,11 @@ public:
                 break;
 
         }*/
+        triggerEvent();
     }
 
     void updateDisconnect(int inSlot) override {
-
+        triggerEvent();
     }
 };
 #endif //NPRSPR_NODEINSTANCE_H
