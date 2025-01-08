@@ -1,5 +1,5 @@
-#ifndef NPRSPR_STACKSTATE_H
-#define NPRSPR_STACKSTATE_H
+#ifndef NPRSPR_STACK_STATE_H
+#define NPRSPR_STACK_STATE_H
 
 namespace stack {
 
@@ -10,4 +10,4 @@ namespace stack {
 
 }
 
-#endif //NPRSPR_STACKSTATE_H
+#endif //NPRSPR_STACK_STATE_H

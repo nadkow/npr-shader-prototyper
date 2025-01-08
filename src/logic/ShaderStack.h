@@ -1,8 +1,8 @@
 #ifndef NPRSPR_SHADERSTACK_H
 #define NPRSPR_SHADERSTACK_H
 
-#include "../rendering/StackState.h"
-#include "../rendering/ShaderBlock.h"
+#include "../rendering/stack_state.h"
+#include "../rendering/shader_block.h"
 
 using namespace block;
 

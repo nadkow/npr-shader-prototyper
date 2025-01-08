@@ -32,9 +32,9 @@
 
 ObjectManager object_manager;
 
-#include "logic/FileManager.h"
+#include "logic/file_manager.h"
 #include "view/gui_manager.h"
-#include "rendering/ObjectRenderer.h"
+#include "rendering/object_renderer.h"
 
 void update();
 void render();

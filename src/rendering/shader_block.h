@@ -1,5 +1,5 @@
-#ifndef NPRSPR_SHADERBLOCK_H
-#define NPRSPR_SHADERBLOCK_H
+#ifndef NPRSPR_SHADER_BLOCK_H
+#define NPRSPR_SHADER_BLOCK_H
 
 #include "ShaderProgram.h"
 
@@ -78,4 +78,4 @@ namespace block {
     }
 }
 
-#endif //NPRSPR_SHADERBLOCK_H
+#endif //NPRSPR_SHADER_BLOCK_H

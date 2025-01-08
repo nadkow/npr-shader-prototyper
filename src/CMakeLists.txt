@@ -23,14 +23,17 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${ASSETS_FILES}
 		view/gui_manager.h
 		gl_version.h
         logic/Object.h
-        logic/FileManager.h
+		logic/file_manager.h
 		logic/ShaderStack.h
-		rendering/ShaderBlock.h
-        rendering/StackState.h
+		rendering/shader_block.h
+		rendering/stack_state.h
 		logic/common.h
-		rendering/ObjectRenderer.h
+		rendering/object_renderer.h
 		view/GraphEditorDelegate.h
 		view/NodeInstance.h
+        events/BaseEvent.h
+		events/Listener.h
+		events/event_manager.h
 )
 
 target_compile_definitions(${PROJECT_NAME} PRIVATE GLFW_INCLUDE_NONE)

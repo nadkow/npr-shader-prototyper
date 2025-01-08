@@ -1,5 +1,5 @@
-#ifndef NPRSPR_OBJECTRENDERER_H
-#define NPRSPR_OBJECTRENDERER_H
+#ifndef NPRSPR_OBJECT_RENDERER_H
+#define NPRSPR_OBJECT_RENDERER_H
 
 namespace renderer {
 
@@ -58,4 +58,4 @@ namespace renderer {
     }
 }
 
-#endif //NPRSPR_OBJECTRENDERER_H
+#endif //NPRSPR_OBJECT_RENDERER_H

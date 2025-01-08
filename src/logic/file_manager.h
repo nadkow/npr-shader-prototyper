@@ -1,5 +1,5 @@
-#ifndef NPRSPR_FILEMANAGER_H
-#define NPRSPR_FILEMANAGER_H
+#ifndef NPRSPR_FILE_MANAGER_H
+#define NPRSPR_FILE_MANAGER_H
 
 namespace files {
 
@@ -33,4 +33,4 @@ namespace files {
     }
 }
 
-#endif //NPRSPR_FILEMANAGER_H
+#endif //NPRSPR_FILE_MANAGER_H
