@@ -3,6 +3,9 @@
 
 constexpr int32_t WINDOW_WIDTH = 1920;
 constexpr int32_t WINDOW_HEIGHT = 1080;
+// initial values
+int display_w = 1920;
+int display_h = 1080;
 
 ImVec4 clear_color = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
 

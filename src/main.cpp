@@ -91,7 +91,7 @@ void update() {}
 
 void render() {
     // clear
-    glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    glClearColor(.0, .0, .0, 1.);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     renderer::draw();

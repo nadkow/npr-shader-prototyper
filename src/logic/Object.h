@@ -54,6 +54,14 @@ public:
         name.append(std::to_string(id));
     }
 
+    void showcaseFlat() {
+        shader.showcaseFlat();
+    }
+
+    void showcaseFresnel() {
+        shader.showcaseFresnel();
+    }
+
 private:
     Model model;
     ShaderStack shader;

@@ -8,12 +8,13 @@ namespace block {
     // optional passes
     void prepare();
     void flat();
+    void fresnel();
 
-    std::vector<std::function<void()>> passes = {prepare, flat};
-    std::vector<std::string> passes_names = {"prepare", "flat color"};
-    enum pass_name {PREPARE, FLAT};
+    std::vector<std::function<void()>> passes = {prepare, flat, fresnel};
+    std::vector<std::string> passes_names = {"prepare", "flat color", "fresnel"};
+    enum pass_name {PREPARE, FLAT, FRESNEL};
 
-    ShaderProgram prepareProgram, flatProgram, finalizeProgram;
+    ShaderProgram prepareProgram, flatProgram, fresnelProgram, finalizeProgram;
     unsigned int quadVAO, quadVBO;
 
     // quad for the final render
@@ -28,6 +29,7 @@ namespace block {
         prepareProgram = ShaderProgram("res/shaders/prepare.vert", "res/shaders/prepare.frag");
         flatProgram = ShaderProgram("res/shaders/flat.vert", "res/shaders/flat.frag");
         finalizeProgram = ShaderProgram("res/shaders/finalize.vert", "res/shaders/finalize.frag");
+        fresnelProgram = ShaderProgram("res/shaders/fresnel.vert", "res/shaders/fresnel.frag");
         // TODO UBO
         //flatProgram.use();
         //flatProgram.setInt("gPosition", 0);
@@ -63,6 +65,21 @@ namespace block {
         flatProgram.setMat4("view", view);
         flatProgram.setMat4("transform", stack::node->getTransform());
         stack::model->Draw(flatProgram);
+    }
+
+    void fresnel() {
+        std::swap(stack::iRender, stack::gRender);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stack::gRender, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, stack::iRender);
+        fresnelProgram.use();
+        // TODO UBO
+        fresnelProgram.setMat4("projection", projection);
+        fresnelProgram.setMat4("view", view);
+        fresnelProgram.setMat4("transform", stack::node->getTransform());
+        fresnelProgram.setVec3("viewPos", cameraPos);
+        fresnelProgram.setVec2("resolution", glm::vec2(display_w, display_h+19));
+        stack::model->Draw(fresnelProgram);
     }
 
     void finalize() {

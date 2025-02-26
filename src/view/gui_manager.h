@@ -28,6 +28,12 @@ namespace gui {
         if (key == GLFW_KEY_R && action == GLFW_PRESS) {
             currentGizmoOperation = ImGuizmo::SCALE;
         }
+        if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcaseFlat();
+        }
+        if (key == GLFW_KEY_G && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcaseFresnel();
+        }
     }
 
     void process_input() {
@@ -232,11 +238,11 @@ namespace gui {
 
     void imgui_end() {
         ImGui::Render();
-        int display_w, display_h;
         glfwMakeContextCurrent(window);
         glfwGetFramebufferSize(window, &display_w, &display_h);
 
-        glViewport(0, 0, display_w, display_h);
+        // ?????? vertical viewport size is smaller than window
+        glViewport(0, 0, display_w, display_h+19);
 
         projection = glm::perspective(glm::radians(45.0f), (float) display_w / display_h, 0.1f, 100.0f);
 
