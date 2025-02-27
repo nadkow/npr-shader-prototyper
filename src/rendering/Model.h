@@ -173,6 +173,10 @@ public:
         loadModel(path);
     }
 
+    unsigned int getDefaultTexture() {
+        return textures_loaded[0].id;
+    }
+
     void Draw(ShaderProgram shader)
     {
         for(unsigned int i = 0; i < meshes.size(); i++)

@@ -212,6 +212,8 @@ namespace gui {
                     }
                     ImGui::EndCombo();
                 }
+                // for colorize test
+                ImGui::ColorEdit3("color", (float*)&stack::color);
             } else if (activeSelected == selectedLight) {
                 // display selected light properties
                 if (ImGui::BeginCombo("type", lightTypeNames[selectedLight->type])) {
@@ -226,6 +228,7 @@ namespace gui {
                     }
                     ImGui::EndCombo();
                 }
+                ImGui::ColorEdit3("color", (float*)&selectedLight->color);
             }
         }
         ImGui::End();

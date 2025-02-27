@@ -9,6 +9,9 @@ in vec3 Normal;
 uniform vec3 pointPos;
 uniform vec4 pointColor;
 
+uniform sampler2D iRender;
+uniform vec2 resolution;
+
 vec3 calcPoint(vec3 norm) {
     float constant = 1.0f;
     float linear = 0.35f;
@@ -19,12 +22,12 @@ vec3 calcPoint(vec3 norm) {
     vec3 pointDir = normalize(pointPos - FragPos);
     float pointDiff = max(dot(norm, pointDir), 0.0);
 
-    return (pointDiff * pointColor.xyz) * attenuation;
+    return (pointDiff * vec3(1.,1.,1.)) * attenuation;
 }
 
 void main()
 {
     vec3 norm = normalize(Normal);
-    gRender.rgb = calcPoint(norm);
+    gRender.rgb = mix(texture(iRender, gl_FragCoord.xy / resolution).rgb, pointColor.xyz, calcPoint(norm));
     gRender.a = 1.0;
 }

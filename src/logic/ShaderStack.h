@@ -51,7 +51,7 @@ public:
 
 private:
 
-    std::vector<pass_name> blocks = {PREPARE};
+    std::vector<pass_name> blocks = {PREPARE, TEXTURE, COLORIZE};
 
 };
 

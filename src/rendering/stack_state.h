@@ -8,6 +8,7 @@ namespace stack {
     unsigned int gBuffer;
     unsigned int gPosition, gNormal, gRender, iRender;
     LightObject* activeLight;
+    glm::vec3 color;
 
 }
 
