@@ -172,7 +172,7 @@ public:
     explicit Model(const std::filesystem::path& path, bool gamma = false) : gammaCorrection(gamma)
     {
         loadModel(path);
-        default_tex_id = textures_loaded[0].id;
+        if (!textures_loaded.empty()) default_tex_id = textures_loaded[0].id;
     }
 
     unsigned int getDefaultTexture() {

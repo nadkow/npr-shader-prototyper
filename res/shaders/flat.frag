@@ -5,6 +5,6 @@ layout (location = 2) out vec4 gRender;
 
 void main()
 {
-    gRender.rgb = vec3(1.0, 0.5, 1.0);
+    gRender.rgb = vec3(0.7, 0.2, 0.7);
     gRender.a = 1.0;
 }

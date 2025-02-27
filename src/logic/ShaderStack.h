@@ -15,6 +15,8 @@ public:
     bool swpt = false;
     bool swt = false;
     bool swc = false;
+    bool sws = false;
+    bool swpr = false;
 
     ShaderStack() = default;
 
@@ -52,6 +54,16 @@ public:
         }
     }
 
+    void showcasePointReversed() {
+        swpr = !swpr;
+        if (swpr)
+            blocks.push_back(POINTLIGHTREV);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), POINTLIGHTREV);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
     void showcasePointTex() {
         swpt = !swpt;
         if (swpt)
@@ -78,6 +90,16 @@ public:
             blocks.push_back(COLORIZE);
         else {
             auto it = std::remove(blocks.begin(), blocks.end(), COLORIZE);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
+    void showcaseSpecular() {
+        sws = !sws;
+        if (sws)
+            blocks.push_back(SPECULAR);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), SPECULAR);
             blocks.erase(it, blocks.end());
         }
     }

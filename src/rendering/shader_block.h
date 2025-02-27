@@ -13,15 +13,17 @@ namespace block {
     void fresnel();
     void pointLight();
     void pointLightTex();
+    void pointLightRev();
     void dirLight();
     void texture();
     void colorize();
+    void specular();
 
-    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightTex, dirLight, texture, colorize};
-    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "textured point light", "directional light", "texture", "colorize"};
-    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTTEX, DIRECTIONALLIGHT, TEXTURE, COLORIZE};
+    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightRev, pointLightTex, dirLight, texture, colorize, specular};
+    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "point light reversed", "textured point light", "directional light", "texture", "colorize", "specular"};
+    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTREV, POINTLIGHTTEX, DIRECTIONALLIGHT, TEXTURE, COLORIZE, SPECULAR};
 
-    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramTex, dirProgram, textureProgram, colorizeProgram, finalizeProgram;
+    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramRev, pointProgramTex, dirProgram, textureProgram, colorizeProgram, specularProgram, finalizeProgram;
     unsigned int quadVAO, quadVBO;
 
     // quad for the final render
@@ -42,6 +44,8 @@ namespace block {
         textureProgram = ShaderProgram("res/shaders/texture.vert", "res/shaders/texture.frag");
         colorizeProgram = ShaderProgram("res/shaders/colorize.vert", "res/shaders/colorize.frag");
         pointProgramTex  = ShaderProgram("res/shaders/pointTextured.vert", "res/shaders/pointTextured.frag");
+        specularProgram = ShaderProgram("res/shaders/specular.vert", "res/shaders/specular.frag");
+        pointProgramRev = ShaderProgram("res/shaders/point.vert", "res/shaders/pointRev.frag");
         // TODO UBO
         //flatProgram.use();
         //flatProgram.setInt("gPosition", 0);
@@ -110,6 +114,22 @@ namespace block {
         stack::model->Draw(pointProgram);
     }
 
+    void pointLightRev() {
+        std::swap(stack::iRender, stack::gRender);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stack::gRender, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, stack::iRender);
+        pointProgramRev.use();
+        pointProgramRev.setVec3("pointPos", stack::activeLight->node.getGlobalTranslation());
+        pointProgramRev.setVec4("pointColor", stack::activeLight->color);
+        // TODO UBO
+        pointProgramRev.setMat4("projection", projection);
+        pointProgramRev.setMat4("view", view);
+        pointProgramRev.setMat4("transform", stack::node->getTransform());
+        pointProgramRev.setVec2("resolution", glm::vec2(display_w, display_h+19));
+        stack::model->Draw(pointProgramRev);
+    }
+
     void pointLightTex() {
         std::swap(stack::iRender, stack::gRender);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stack::gRender, 0);
@@ -128,6 +148,23 @@ namespace block {
         pointProgramTex.setMat4("transform", stack::node->getTransform());
         pointProgramTex.setVec2("resolution", glm::vec2(display_w, display_h+19));
         stack::model->Draw(pointProgramTex);
+    }
+
+    void specular() {
+        std::swap(stack::iRender, stack::gRender);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stack::gRender, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, stack::iRender);
+        specularProgram.use();
+        specularProgram.setVec3("pointPos", stack::activeLight->node.getGlobalTranslation());
+        specularProgram.setVec4("pointColor", stack::activeLight->color);
+        specularProgram.setVec3("viewPos", cameraPos);
+        // TODO UBO
+        specularProgram.setMat4("projection", projection);
+        specularProgram.setMat4("view", view);
+        specularProgram.setMat4("transform", stack::node->getTransform());
+        specularProgram.setVec2("resolution", glm::vec2(display_w, display_h+19));
+        stack::model->Draw(specularProgram);
     }
 
     void dirLight() {

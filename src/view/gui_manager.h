@@ -46,6 +46,12 @@ namespace gui {
         if (key == GLFW_KEY_C && action == GLFW_PRESS) {
             if (selectedObject) selectedObject->showcaseColorize();
         }
+        if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcaseSpecular();
+        }
+        if (key == GLFW_KEY_O && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcasePointReversed();
+        }
     }
 
     void process_input() {

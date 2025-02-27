@@ -59,6 +59,14 @@ public:
         shader.showcaseColorize();
     }
 
+    void showcaseSpecular() {
+        shader.showcaseSpecular();
+    }
+
+    void showcasePointReversed() {
+        shader.showcasePointReversed();
+    }
+
 private:
     Model model;
     ShaderStack shader;
