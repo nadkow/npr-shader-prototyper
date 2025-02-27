@@ -12,6 +12,9 @@ public:
     bool swf = false;
     bool swfr = false;
     bool swp = false;
+    bool swpt = false;
+    bool swt = false;
+    bool swc = false;
 
     ShaderStack() = default;
 
@@ -49,9 +52,39 @@ public:
         }
     }
 
+    void showcasePointTex() {
+        swpt = !swpt;
+        if (swpt)
+            blocks.push_back(POINTLIGHTTEX);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), POINTLIGHTTEX);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
+    void showcaseTex() {
+        swt = !swt;
+        if (swt)
+            blocks.push_back(TEXTURE);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), TEXTURE);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
+    void showcaseColorize() {
+        swc = !swc;
+        if (swc)
+            blocks.push_back(COLORIZE);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), COLORIZE);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
 private:
 
-    std::vector<pass_name> blocks = {PREPARE, TEXTURE, COLORIZE};
+    std::vector<pass_name> blocks = {PREPARE, TEXTURE};
 
 };
 

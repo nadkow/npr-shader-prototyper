@@ -37,6 +37,15 @@ namespace gui {
         if (key == GLFW_KEY_P && action == GLFW_PRESS) {
             if (selectedObject) selectedObject->showcasePoint();
         }
+        if (key == GLFW_KEY_L && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcasePointTex();
+        }
+        if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcaseTex();
+        }
+        if (key == GLFW_KEY_C && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcaseColorize();
+        }
     }
 
     void process_input() {

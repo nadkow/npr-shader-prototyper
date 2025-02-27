@@ -47,6 +47,18 @@ public:
         shader.showcasePoint();
     }
 
+    void showcasePointTex() {
+        shader.showcasePointTex();
+    }
+
+    void showcaseTex() {
+        shader.showcaseTex();
+    }
+
+    void showcaseColorize() {
+        shader.showcaseColorize();
+    }
+
 private:
     Model model;
     ShaderStack shader;

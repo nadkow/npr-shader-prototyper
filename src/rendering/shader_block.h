@@ -12,15 +12,16 @@ namespace block {
     void flat();
     void fresnel();
     void pointLight();
+    void pointLightTex();
     void dirLight();
     void texture();
     void colorize();
 
-    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, dirLight, texture, colorize};
-    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "directional light", "texture", "colorize"};
-    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, DIRECTIONALLIGHT, TEXTURE, COLORIZE};
+    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightTex, dirLight, texture, colorize};
+    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "textured point light", "directional light", "texture", "colorize"};
+    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTTEX, DIRECTIONALLIGHT, TEXTURE, COLORIZE};
 
-    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, dirProgram, textureProgram, colorizeProgram, finalizeProgram;
+    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramTex, dirProgram, textureProgram, colorizeProgram, finalizeProgram;
     unsigned int quadVAO, quadVBO;
 
     // quad for the final render
@@ -40,6 +41,7 @@ namespace block {
         //dirProgram = ShaderProgram("res/shaders/directional.vert", "res/shaders/directional.frag");
         textureProgram = ShaderProgram("res/shaders/texture.vert", "res/shaders/texture.frag");
         colorizeProgram = ShaderProgram("res/shaders/colorize.vert", "res/shaders/colorize.frag");
+        pointProgramTex  = ShaderProgram("res/shaders/pointTextured.vert", "res/shaders/pointTextured.frag");
         // TODO UBO
         //flatProgram.use();
         //flatProgram.setInt("gPosition", 0);
@@ -106,6 +108,26 @@ namespace block {
         pointProgram.setMat4("transform", stack::node->getTransform());
         pointProgram.setVec2("resolution", glm::vec2(display_w, display_h+19));
         stack::model->Draw(pointProgram);
+    }
+
+    void pointLightTex() {
+        std::swap(stack::iRender, stack::gRender);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT2, GL_TEXTURE_2D, stack::gRender, 0);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, stack::iRender);
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, stack::model->getDefaultTexture());
+        pointProgramTex.use();
+        pointProgramTex.setInt("iRender", 0);
+        pointProgramTex.setInt("tex", 1);
+        pointProgramTex.setVec3("pointPos", stack::activeLight->node.getGlobalTranslation());
+        pointProgramTex.setVec4("pointColor", stack::activeLight->color);
+        // TODO UBO
+        pointProgramTex.setMat4("projection", projection);
+        pointProgramTex.setMat4("view", view);
+        pointProgramTex.setMat4("transform", stack::node->getTransform());
+        pointProgramTex.setVec2("resolution", glm::vec2(display_w, display_h+19));
+        stack::model->Draw(pointProgramTex);
     }
 
     void dirLight() {

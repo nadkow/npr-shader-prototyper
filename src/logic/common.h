@@ -9,7 +9,7 @@ int display_h = 1080;
 
 ImVec4 clear_color = ImVec4(0.3f, 0.3f, 0.3f, 1.00f);
 
-float camDist = 10.f;
+float camDist = 8.f;
 glm::vec3 cameraPos = glm::vec3(0.0f, 3.f, camDist);
 glm::vec3 cameraFront = glm::vec3(0.0f, -3.0f, -camDist);
 glm::vec3 cameraUp = glm::vec3(0.0f, 0.996f, 0.08f);

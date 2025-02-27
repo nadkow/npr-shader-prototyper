@@ -18,6 +18,7 @@ unsigned int TextureFromFile(const char *path, const std::string &directory, boo
 class Model
 {
 private:
+    unsigned int default_tex_id;
     // load model from file using assimp
     void loadModel(std::filesystem::path const &path)
     {
@@ -171,10 +172,11 @@ public:
     explicit Model(const std::filesystem::path& path, bool gamma = false) : gammaCorrection(gamma)
     {
         loadModel(path);
+        default_tex_id = textures_loaded[0].id;
     }
 
     unsigned int getDefaultTexture() {
-        return textures_loaded[0].id;
+        return default_tex_id;
     }
 
     void Draw(ShaderProgram shader)
