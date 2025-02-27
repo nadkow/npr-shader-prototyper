@@ -34,6 +34,9 @@ namespace gui {
         if (key == GLFW_KEY_G && action == GLFW_PRESS) {
             if (selectedObject) selectedObject->showcaseFresnel();
         }
+        if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcasePoint();
+        }
     }
 
     void process_input() {
@@ -178,6 +181,7 @@ namespace gui {
                     if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
                         selectedLight = ob;
                         activeSelected = ob;
+                        stack::activeLight = ob;
                     }
                 }
                 ImGui::Separator();
@@ -201,6 +205,20 @@ namespace gui {
                         bool is_selected = (selectedObject->filename == modelFile);
                         if (ImGui::Selectable(modelFile.c_str(), is_selected)) {
                             selectedObject->changeFile(modelFile);
+                        }
+                        if (is_selected) {
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            } else if (activeSelected == selectedLight) {
+                // display selected light properties
+                if (ImGui::BeginCombo("type", lightTypeNames[selectedLight->type])) {
+                    for (int i = 0; i <2; i++) {
+                        bool is_selected = (selectedLight->type == i);
+                        if (ImGui::Selectable(lightTypeNames[i], is_selected)) {
+                            selectedLight->changeType(i);
                         }
                         if (is_selected) {
                             ImGui::SetItemDefaultFocus();

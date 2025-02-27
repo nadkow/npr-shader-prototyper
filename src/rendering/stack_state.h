@@ -7,6 +7,7 @@ namespace stack {
     Node* node;
     unsigned int gBuffer;
     unsigned int gPosition, gNormal, gRender, iRender;
+    LightObject* activeLight;
 
 }
 

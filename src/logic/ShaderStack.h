@@ -11,6 +11,7 @@ class ShaderStack {
 public:
     bool swf = false;
     bool swfr = false;
+    bool swp = false;
 
     ShaderStack() = default;
 
@@ -34,6 +35,16 @@ public:
             blocks.push_back(FRESNEL);
         else {
             auto it = std::remove(blocks.begin(), blocks.end(), FRESNEL);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
+    void showcasePoint() {
+        swp = !swp;
+        if (swp)
+            blocks.push_back(POINTLIGHT);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), POINTLIGHT);
             blocks.erase(it, blocks.end());
         }
     }

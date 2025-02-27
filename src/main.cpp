@@ -26,6 +26,8 @@
 #include "logic/common.h"
 #include "rendering/Model.h"
 #include "logic/Node.h"
+#include "logic/GeneralObject.h"
+#include "logic/LightObject.h"
 #include "logic/ShaderStack.h"
 #include "events/event_manager.h"
 #include "events/NodeEvent.h"

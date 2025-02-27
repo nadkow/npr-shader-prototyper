@@ -3,25 +3,6 @@
 
 #include <utility>
 
-enum lightType {
-    directional, point
-};
-
-static int globalId;
-
-class GeneralObject {
-
-public:
-
-    std::string name;
-    bool visible = true;
-    Node node;
-
-protected:
-
-    int id;
-};
-
 class Object : public GeneralObject {
 
 public:
@@ -62,6 +43,10 @@ public:
         shader.showcaseFresnel();
     }
 
+    void showcasePoint() {
+        shader.showcasePoint();
+    }
+
 private:
     Model model;
     ShaderStack shader;
@@ -73,27 +58,7 @@ private:
     }
 };
 
-class LightObject : public GeneralObject {
 
-public:
-
-    ImVec4 color = ImVec4(1.f, 1.f, 1.f, 1.f);
-    lightType type;
-
-    LightObject() {
-        name = "light";
-        name.append(std::to_string(globalId));
-        id = globalId;
-        globalId++;
-        type = point;
-    }
-
-private:
-
-    Model model;
-    ShaderProgram shader;
-    glm::vec4 baseDirection = glm::vec4(0.f, -1.f, 0.f, 1.f);
-};
 
 class ObjectManager {
 

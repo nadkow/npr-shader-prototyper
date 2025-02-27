@@ -3,18 +3,22 @@
 
 #include "ShaderProgram.h"
 
+
+
 namespace block {
 
     // optional passes
     void prepare();
     void flat();
     void fresnel();
+    void pointLight();
+    void dirLight();
 
-    std::vector<std::function<void()>> passes = {prepare, flat, fresnel};
-    std::vector<std::string> passes_names = {"prepare", "flat color", "fresnel"};
-    enum pass_name {PREPARE, FLAT, FRESNEL};
+    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, dirLight};
+    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "directional light"};
+    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, DIRECTIONALLIGHT};
 
-    ShaderProgram prepareProgram, flatProgram, fresnelProgram, finalizeProgram;
+    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, dirProgram, finalizeProgram;
     unsigned int quadVAO, quadVBO;
 
     // quad for the final render
@@ -30,6 +34,8 @@ namespace block {
         flatProgram = ShaderProgram("res/shaders/flat.vert", "res/shaders/flat.frag");
         finalizeProgram = ShaderProgram("res/shaders/finalize.vert", "res/shaders/finalize.frag");
         fresnelProgram = ShaderProgram("res/shaders/fresnel.vert", "res/shaders/fresnel.frag");
+        pointProgram = ShaderProgram("res/shaders/point.vert", "res/shaders/point.frag");
+        //dirProgram = ShaderProgram("res/shaders/directional.vert", "res/shaders/directional.frag");
         // TODO UBO
         //flatProgram.use();
         //flatProgram.setInt("gPosition", 0);
@@ -80,6 +86,26 @@ namespace block {
         fresnelProgram.setVec3("viewPos", cameraPos);
         fresnelProgram.setVec2("resolution", glm::vec2(display_w, display_h+19));
         stack::model->Draw(fresnelProgram);
+    }
+
+    void pointLight() {
+        pointProgram.use();
+        pointProgram.setVec3("pointPos", stack::activeLight->node.getGlobalTranslation());
+        pointProgram.setVec4("pointColor", stack::activeLight->color);
+        // TODO UBO
+        pointProgram.setMat4("projection", projection);
+        pointProgram.setMat4("view", view);
+        pointProgram.setMat4("transform", stack::node->getTransform());
+        stack::model->Draw(pointProgram);
+    }
+
+    void dirLight() {
+        dirProgram.use();
+        // TODO UBO
+        dirProgram.setMat4("projection", projection);
+        dirProgram.setMat4("view", view);
+        dirProgram.setMat4("transform", stack::node->getTransform());
+        stack::model->Draw(dirProgram);
     }
 
     void finalize() {
