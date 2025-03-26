@@ -17,6 +17,7 @@ public:
     bool swc = false;
     bool sws = false;
     bool swpr = false;
+    bool swr = false;
 
     ShaderStack() = default;
 
@@ -104,9 +105,19 @@ public:
         }
     }
 
+    void showcaseRing() {
+        swr = !swr;
+        if (swr)
+            blocks.push_back(RING);
+        else {
+            auto it = std::remove(blocks.begin(), blocks.end(), RING);
+            blocks.erase(it, blocks.end());
+        }
+    }
+
 private:
 
-    std::vector<pass_name> blocks = {PREPARE, TEXTURE};
+    std::vector<pass_name> blocks = {PREPARE, COLORIZE};
 
 };
 

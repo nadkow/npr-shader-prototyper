@@ -52,6 +52,9 @@ namespace gui {
         if (key == GLFW_KEY_O && action == GLFW_PRESS) {
             if (selectedObject) selectedObject->showcasePointReversed();
         }
+        if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+            if (selectedObject) selectedObject->showcaseRing();
+        }
     }
 
     void process_input() {

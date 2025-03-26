@@ -18,12 +18,13 @@ namespace block {
     void texture();
     void colorize();
     void specular();
+    void ring();
 
-    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightRev, pointLightTex, dirLight, texture, colorize, specular};
-    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "point light reversed", "textured point light", "directional light", "texture", "colorize", "specular"};
-    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTREV, POINTLIGHTTEX, DIRECTIONALLIGHT, TEXTURE, COLORIZE, SPECULAR};
+    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightRev, pointLightTex, dirLight, texture, colorize, specular, ring};
+    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "point light reversed", "textured point light", "directional light", "texture", "colorize", "specular", "ring"};
+    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTREV, POINTLIGHTTEX, DIRECTIONALLIGHT, TEXTURE, COLORIZE, SPECULAR, RING};
 
-    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramRev, pointProgramTex, dirProgram, textureProgram, colorizeProgram, specularProgram, finalizeProgram;
+    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramRev, pointProgramTex, dirProgram, textureProgram, colorizeProgram, specularProgram, ringProgram, finalizeProgram;
     unsigned int quadVAO, quadVBO;
 
     // quad for the final render
@@ -46,6 +47,7 @@ namespace block {
         pointProgramTex  = ShaderProgram("res/shaders/pointTextured.vert", "res/shaders/pointTextured.frag");
         specularProgram = ShaderProgram("res/shaders/specular.vert", "res/shaders/specular.frag");
         pointProgramRev = ShaderProgram("res/shaders/point.vert", "res/shaders/pointRev.frag");
+        ringProgram = ShaderProgram("res/shaders/ring.vert", "res/shaders/ring.frag");
         // TODO UBO
         //flatProgram.use();
         //flatProgram.setInt("gPosition", 0);
@@ -165,6 +167,16 @@ namespace block {
         specularProgram.setMat4("transform", stack::node->getTransform());
         specularProgram.setVec2("resolution", glm::vec2(display_w, display_h+19));
         stack::model->Draw(specularProgram);
+    }
+
+    void ring() {
+        ringProgram.use();
+        // TODO UBO
+        ringProgram.setMat4("projection", projection);
+        ringProgram.setMat4("view", view);
+        ringProgram.setMat4("transform", stack::node->getTransform());
+        ringProgram.setVec3("viewPos", cameraPos);
+        stack::model->Draw(ringProgram);
     }
 
     void dirLight() {

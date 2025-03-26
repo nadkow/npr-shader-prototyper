@@ -14,12 +14,10 @@ private:
 
     void onNodeChanged(NodeInstance* node) {
         //update current node
-        std::cout << "updating node" << std::endl;
+        node->pullData();
         // update connected nodes downstream
         for (int i=0; i < node->getOutputCount(); i++) {
-            std::cout << "check socket " << i << std::endl;
             for (auto connectedNode : node->outputs[i]) {
-                std::cout << "updating child..." << std::endl;
                 onNodeChanged(connectedNode);
             }
         }

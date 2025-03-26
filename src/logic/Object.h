@@ -43,6 +43,10 @@ public:
         shader.showcaseFresnel();
     }
 
+    void showcaseRing() {
+        shader.showcaseRing();
+    }
+
     void showcasePoint() {
         shader.showcasePoint();
     }
