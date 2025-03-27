@@ -6,9 +6,16 @@
 class NodeInstance {
 
 public:
+
+    struct socket {
+        int8_t slot;
+        NodeInstance* node;
+    };
+
     using dataType = std::variant<int, float, ImVec2, ImVec4>;
-    NodeInstance** inputs;
-    std::vector<dataType> defaultInputs;
+    socket* inputs;
+    std::vector<dataType*> defaultInputs;
+    std::vector<dataType*> currentInputs;
     std::vector<NodeInstance*>* outputs;
     std::vector<dataType> defaultOutputs;
     bool* outputDirtyFlags = nullptr;
@@ -19,6 +26,16 @@ public:
     virtual void drawNode(ImRect rect, float factor) = 0;
 
     virtual int getOutputCount() = 0;
+    virtual int getInputCount() = 0;
+
+    void pullData() {
+        // pull to input socket
+        for (int i = 0; i < getInputCount(); i++)
+            // pull if connected
+            if (inputs[i].node)
+                currentInputs[i] = inputs[i].node->currentInputs[inputs[i].slot];
+            else currentInputs[i] = defaultInputs[i];
+    }
 
     // inNode - receiving node, outNode - outputting node
     static bool connect(NodeInstance* outNode, int outSlot, NodeInstance* inNode, int inSlot) {
@@ -26,9 +43,10 @@ public:
             if(inNode->inputType == DATA) {
                 // data to shader or data to data
                 // do data types match?
-                if (outNode->defaultOutputs[outSlot].index() == inNode->defaultInputs[inSlot].index()) {
-                    inNode->inputs[inSlot] = outNode;
+                if (outNode->defaultOutputs[outSlot].index() == inNode->defaultInputs[inSlot]->index()) {
+                    inNode->inputs[inSlot].node = outNode;
                     outNode->outputs[outSlot].push_back(inNode);
+                    inNode->outputDirtyFlags[inSlot] = true;
                     inNode->updateConnect(inSlot);
                     return true;
                 }
@@ -36,7 +54,7 @@ public:
             } else {
                 // shader to final output
                 inNode->updateConnect(inSlot);
-                inNode->inputs[inSlot] = outNode;
+                //inNode->inputs[inSlot].node = outNode;
                 return true;
             }
         }
@@ -45,7 +63,7 @@ public:
 
     // set the input slot of inNode to default value
     static void disconnect(NodeInstance* inNode, int inSlot, NodeInstance* outNode, int outSlot) {
-        inNode->inputs[inSlot] = nullptr;
+
         outNode->deleteConnection(outSlot, inNode);
         inNode->updateDisconnect(inSlot);
     };
@@ -73,6 +91,7 @@ public:
     ShaderNodeInstance() {
          inputType = DATA;
          outputType = SHADER;
+         outputDirtyFlags = new bool[1];
     }
 
     int getOutputCount() override {
@@ -101,8 +120,9 @@ public:
 
     DrawFlat() {
         //inputs
-        inputs = new NodeInstance * [inputCount]{};
-        defaultInputs.push_back(color);
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&color);
+        currentInputs.push_back(&color);
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
     };
@@ -110,7 +130,7 @@ public:
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */);
+        ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */);
 
     }
 
@@ -121,7 +141,12 @@ public:
 
     void updateDisconnect(int inSlot) override {
         // TODO same
+        inputs[inSlot].node = nullptr;
         triggerEvent();
+    }
+
+    int getInputCount() override {
+        return 1;
     }
 
 };
@@ -137,11 +162,12 @@ public:
         outputType = NONE;
         finalNodeTemplate = t;
 
-        inputs = connectedNodes.data();
+        //inputs = connectedNodes.data(); TODO
     }
 
     void drawNode(ImRect rect, float factor) override {}
     int getOutputCount() override { return 0;}
+    int getInputCount() override { return 0;}
 
     void updateConnect(int inSlot) override {
         if (inSlot > lastOccupiedSlot && inSlot < 64) {
@@ -150,7 +176,7 @@ public:
             lastOccupiedSlot = inSlot;
             // reserve space for new connection
             connectedNodes.push_back(nullptr);
-            inputs = connectedNodes.data();
+            //inputs = connectedNodes.data();
         }
     }
 
@@ -159,7 +185,7 @@ public:
             finalNodeTemplate->mInputCount -= 1;
             finalNodeTemplate->mHeight -= 40;
             connectedNodes.resize(lastOccupiedSlot+1);
-            inputs = connectedNodes.data();
+            //inputs = connectedNodes.data();
             lastOccupiedSlot -= 1;
         }
     }
@@ -182,8 +208,9 @@ public:
 
     ColorNode() {
         //inputs
-        inputs = new NodeInstance * [inputCount]{};
-        defaultInputs.push_back(color);
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&color);
+        currentInputs.push_back(&color);
         // outputs
         outputs = new std::vector<NodeInstance*>[outputCount]{};
         defaultOutputs.push_back(color);
@@ -194,10 +221,14 @@ public:
         return outputCount;
     }
 
+    int getInputCount() override {
+        return inputCount;
+    }
+
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::ColorEdit4("Color", (float *) &color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+        ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
     }
 
     void updateConnect(int inSlot) override {
@@ -205,6 +236,7 @@ public:
     }
 
     void updateDisconnect(int inSlot) override {
+        inputs[inSlot].node = nullptr;
         triggerEvent();
     }
 };
@@ -215,10 +247,13 @@ public:
     static constexpr int inputCount = 1;
     static constexpr int outputCount = 1;
 
+    dataType value = 1.f;
+
     FloatNode() {
         //inputs
-        inputs = new NodeInstance * [inputCount]{};
-        defaultInputs.emplace_back(1.f);
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&value);
+        currentInputs.push_back(&value);
         // outputs
         outputs = new std::vector<NodeInstance*>[outputCount]{};
         defaultOutputs.emplace_back(1.f);
@@ -229,10 +264,14 @@ public:
         return outputCount;
     }
 
+    int getInputCount() override {
+        return inputCount;
+    }
+
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::InputFloat("value", (float *) &defaultInputs[0]);
+        ImGui::InputFloat("value", (float *) currentInputs[0]);
     }
 
     void updateConnect(int inSlot) override {
@@ -240,6 +279,7 @@ public:
     }
 
     void updateDisconnect(int inSlot) override {
+        inputs[inSlot].node = nullptr;
         triggerEvent();
     }
 };
@@ -252,18 +292,23 @@ public:
     //output
     dataType vec = ImVec4{.0, .0, .0, .0};
     // default inputs
-    float x = 0;
-    float y = 0;
-    float z = 0;
-    float w = 0;
+    dataType x = 0.f;
+    dataType y = 0.f;
+    dataType z = 0.f;
+    dataType w = 0.f;
 
     CombineVec4Node() {
         //inputs
-        inputs = new NodeInstance * [inputCount]{};
-        defaultInputs.emplace_back(x);
-        defaultInputs.emplace_back(y);
-        defaultInputs.emplace_back(z);
-        defaultInputs.emplace_back(w);
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&x);
+        defaultInputs.push_back(&y);
+        defaultInputs.push_back(&z);
+        defaultInputs.push_back(&w);
+
+        currentInputs.push_back(&x);
+        currentInputs.push_back(&y);
+        currentInputs.push_back(&z);
+        currentInputs.push_back(&w);
         // outputs
         outputs = new std::vector<NodeInstance*>[outputCount]{};
         defaultOutputs.emplace_back(vec);
@@ -274,37 +319,25 @@ public:
         return outputCount;
     }
 
+    int getInputCount() override {
+        return inputCount;
+    }
+
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::InputFloat("x", (float *) &defaultInputs[0]);
-        ImGui::InputFloat("y", (float *) &defaultInputs[1]);
-        ImGui::InputFloat("z", (float *) &defaultInputs[2]);
-        ImGui::InputFloat("w", (float *) &defaultInputs[3]);
+        ImGui::InputFloat("x", (float *) currentInputs[0]);
+        ImGui::InputFloat("y", (float *) currentInputs[1]);
+        ImGui::InputFloat("z", (float *) currentInputs[2]);
+        ImGui::InputFloat("w", (float *) currentInputs[3]);
     }
 
     void updateConnect(int inSlot) override {
-        /*
-        ImVec4 temp = std::get<ImVec4>(vec);
-        switch(inSlot) {
-            case 0:
-                temp.x = *inputs[0];
-                break;
-            case 1:
-                // code block
-                break;
-            case 2:
-                // code block
-                break;
-            case 3:
-                // code block
-                break;
-
-        }*/
         triggerEvent();
     }
 
     void updateDisconnect(int inSlot) override {
+        inputs[inSlot].node = nullptr;
         triggerEvent();
     }
 };

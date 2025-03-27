@@ -34,9 +34,9 @@
 namespace GraphEditor {
 
 typedef size_t NodeIndex;
-typedef size_t SlotIndex;
+typedef int8_t SlotIndex;
 typedef size_t LinkIndex;
-typedef size_t TemplateIndex;
+typedef int8_t TemplateIndex;
 
 // Force the view to be respositionned and zoom to fit nodes with Show function.
 // Parameter value will be changed to Fit_None by the function.

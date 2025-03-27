@@ -58,6 +58,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
     {
         mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
+        NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex);
     }
 
     void DelLink(GraphEditor::LinkIndex linkIndex) override
@@ -92,7 +93,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     {
         const auto& myNode = mNodes[index];
         if (myNode.templateIndex)
-        return GraphEditor::Node
+            return GraphEditor::Node
                 {
                         myNode.name,
                         myNode.templateIndex,
@@ -221,7 +222,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     new DrawFinal(&finalNodeTemplate)
             },
             {
-                    block::passes_names[block::FLAT].c_str(),
+                    block::passes_names[block::FLAT],
                     block::FLAT,
                     200, 200,
                     false,
