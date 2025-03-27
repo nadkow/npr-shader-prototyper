@@ -271,6 +271,7 @@ public:
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::PushItemWidth(80);
         ImGui::InputFloat("value", (float *) currentInputs[0]);
     }
 
@@ -326,9 +327,16 @@ public:
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::PushItemWidth(80);
         ImGui::InputFloat("x", (float *) currentInputs[0]);
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
         ImGui::InputFloat("y", (float *) currentInputs[1]);
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
         ImGui::InputFloat("z", (float *) currentInputs[2]);
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
         ImGui::InputFloat("w", (float *) currentInputs[3]);
     }
 

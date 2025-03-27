@@ -200,7 +200,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     1,
                     Array{"Vec4"},
                     Array{ DEFAULT_SLOT_COLOR},
-                    320
+                    160
             }
     };
 
