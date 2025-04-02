@@ -47,13 +47,13 @@ public:
                     inNode->inputs[inSlot].node = outNode;
                     outNode->outputs[outSlot].push_back(inNode);
                     inNode->outputDirtyFlags[inSlot] = true;
-                    inNode->updateConnect(inSlot);
+                    inNode->updateConnect(outNode, inSlot);
                     return true;
                 }
                 return false;
             } else {
                 // shader to final output
-                inNode->updateConnect(inSlot);
+                inNode->updateConnect(outNode, inSlot);
                 //inNode->inputs[inSlot].node = outNode;
                 return true;
             }
@@ -63,15 +63,14 @@ public:
 
     // set the input slot of inNode to default value
     static void disconnect(NodeInstance* inNode, int inSlot, NodeInstance* outNode, int outSlot) {
-
         outNode->deleteConnection(outSlot, inNode);
-        inNode->updateDisconnect(inSlot);
+        inNode->updateDisconnect(outNode, inSlot);
     };
 
 protected:
 
-    virtual void updateConnect(int inSlot) = 0;
-    virtual void updateDisconnect(int inSlot) = 0;
+    virtual void updateConnect(NodeInstance* node, int inSlot) = 0;
+    virtual void updateDisconnect(NodeInstance* node, int inSlot) = 0;
 
     void deleteConnection(int outSlot, NodeInstance* inNode) {
         auto it = std::remove(outputs[outSlot].begin(), outputs[outSlot].end(), inNode);
@@ -134,12 +133,12 @@ public:
 
     }
 
-    void updateConnect(int inSlot) override {
+    void updateConnect(NodeInstance* node, int inSlot) override {
         // TODO update flags here
         triggerEvent();
     }
 
-    void updateDisconnect(int inSlot) override {
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
         // TODO same
         inputs[inSlot].node = nullptr;
         triggerEvent();
@@ -165,28 +164,40 @@ public:
         //inputs = connectedNodes.data(); TODO
     }
 
-    void drawNode(ImRect rect, float factor) override {}
+    void drawNode(ImRect rect, float factor) override {
+        for (NodeInstance* node : connectedNodes) {
+            if (node) {
+                ImGui::SetCursorPosX(rect.Min.x + 10);
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 21 * factor);
+                ImGui::Text("shader");
+            } else {
+                ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 38 * factor);
+            }
+        }
+    }
     int getOutputCount() override { return 0;}
     int getInputCount() override { return 0;}
 
-    void updateConnect(int inSlot) override {
-        if (inSlot > lastOccupiedSlot && inSlot < 64) {
+    void updateConnect(NodeInstance* node, int inSlot) override {
+        if (inSlot >= lastOccupiedSlot && inSlot < 64) {
             finalNodeTemplate->mInputCount += 1;
             finalNodeTemplate->mHeight += 40;
             lastOccupiedSlot = inSlot;
-            // reserve space for new connection
-            connectedNodes.push_back(nullptr);
-            //inputs = connectedNodes.data();
+            connectedNodes.insert(connectedNodes.end()-1, node);
+        } else {
+            connectedNodes[inSlot] = node;
         }
     }
 
-    void updateDisconnect(int inSlot) override {
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
         if (inSlot == lastOccupiedSlot) {
             finalNodeTemplate->mInputCount -= 1;
             finalNodeTemplate->mHeight -= 40;
-            connectedNodes.resize(lastOccupiedSlot+1);
             //inputs = connectedNodes.data();
             lastOccupiedSlot -= 1;
+            connectedNodes.erase(connectedNodes.begin()+inSlot);
+        } else {
+            connectedNodes[inSlot] = nullptr;
         }
     }
 
@@ -231,11 +242,11 @@ public:
         ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
     }
 
-    void updateConnect(int inSlot) override {
+    void updateConnect(NodeInstance* node, int inSlot) override {
         triggerEvent();
     }
 
-    void updateDisconnect(int inSlot) override {
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
         inputs[inSlot].node = nullptr;
         triggerEvent();
     }
@@ -275,11 +286,11 @@ public:
         ImGui::InputFloat("value", (float *) currentInputs[0]);
     }
 
-    void updateConnect(int inSlot) override {
+    void updateConnect(NodeInstance* node, int inSlot) override {
         triggerEvent();
     }
 
-    void updateDisconnect(int inSlot) override {
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
         inputs[inSlot].node = nullptr;
         triggerEvent();
     }
@@ -340,11 +351,11 @@ public:
         ImGui::InputFloat("w", (float *) currentInputs[3]);
     }
 
-    void updateConnect(int inSlot) override {
+    void updateConnect(NodeInstance* node, int inSlot) override {
         triggerEvent();
     }
 
-    void updateDisconnect(int inSlot) override {
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
         inputs[inSlot].node = nullptr;
         triggerEvent();
     }

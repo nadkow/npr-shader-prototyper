@@ -52,13 +52,13 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     }
 
     void RightClick(GraphEditor::NodeIndex nodeIndex, GraphEditor::SlotIndex slotIndexInput, GraphEditor::SlotIndex slotIndexOutput) override
-    { //add new node
+    { //add new node TODO
     }
 
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
     {
         mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
-        NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex);
+        //NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex);
     }
 
     void DelLink(GraphEditor::LinkIndex linkIndex) override
@@ -126,13 +126,13 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             IM_COL32(110, 80, 80, 255),
             BG_COLOR,
             OVER_BG_COLOR,
-            2,
+            1,
             finalNodeInputNames,
             nullptr,
             0,
             nullptr,
             nullptr,
-            120
+            60
     };
 
     // Graph datas
@@ -258,7 +258,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             }
     };
 
-    std::vector<GraphEditor::Link> mLinks = { {1, 0, 0, 0} };
+    std::vector<GraphEditor::Link> mLinks = {};
 };
 
 #endif //NPRSPR_GRAPHEDITORDELEGATE_H
