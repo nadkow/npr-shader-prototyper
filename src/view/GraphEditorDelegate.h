@@ -30,7 +30,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
 {
     bool AllowedLink(GraphEditor::NodeIndex from, GraphEditor::SlotIndex slotIndexInput, GraphEditor::NodeIndex to, GraphEditor::SlotIndex slotIndexOutput) override
     {
-        return (NodeInstance::connect(mNodes[to].instance, slotIndexOutput, mNodes[from].instance, slotIndexInput));
+        return (NodeInstance::canConnect(mNodes[to].instance, slotIndexOutput, mNodes[from].instance, slotIndexInput));
     }
 
     void SelectNode(GraphEditor::NodeIndex nodeIndex, bool selected) override
@@ -58,7 +58,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
     {
         mLinks.push_back({ inputNodeIndex, inputSlotIndex, outputNodeIndex, outputSlotIndex });
-        //NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex);
+        NodeInstance::connect(mNodes[inputNodeIndex].instance, inputSlotIndex, mNodes[outputNodeIndex].instance, outputSlotIndex);
     }
 
     void DelLink(GraphEditor::LinkIndex linkIndex) override

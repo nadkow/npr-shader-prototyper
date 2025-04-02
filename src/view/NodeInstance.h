@@ -38,23 +38,28 @@ public:
     }
 
     // inNode - receiving node, outNode - outputting node
-    static bool connect(NodeInstance* outNode, int outSlot, NodeInstance* inNode, int inSlot) {
-        if (inNode->inputType == outNode->outputType && inNode != outNode) {
+    static void connect(NodeInstance* outNode, int outSlot, NodeInstance* inNode, int inSlot) {
             if(inNode->inputType == DATA) {
                 // data to shader or data to data
-                // do data types match?
-                if (outNode->defaultOutputs[outSlot].index() == inNode->defaultInputs[inSlot]->index()) {
                     inNode->inputs[inSlot].node = outNode;
                     outNode->outputs[outSlot].push_back(inNode);
                     inNode->outputDirtyFlags[inSlot] = true;
                     inNode->updateConnect(outNode, inSlot);
-                    return true;
-                }
-                return false;
             } else {
                 // shader to final output
                 inNode->updateConnect(outNode, inSlot);
                 //inNode->inputs[inSlot].node = outNode;
+            }
+    };
+
+    static bool canConnect(NodeInstance* outNode, int outSlot, NodeInstance* inNode, int inSlot) {
+        if (inNode->inputType == outNode->outputType && inNode != outNode) {
+            if(inNode->inputType == DATA) {
+                // data to shader or data to data
+                // do data types match?
+                return outNode->defaultOutputs[outSlot].index() == inNode->defaultInputs[inSlot]->index();
+            } else {
+                // shader to final output
                 return true;
             }
         }
