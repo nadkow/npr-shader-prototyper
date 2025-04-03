@@ -1,7 +1,3 @@
--[ ] uniform buffer objects (works for all shaders)
+node graph scroll issue
 
--[ ] refactor
--[ ] shader blocks customization
--[ ] customize light properties
-- [ ] save node setup to file
-- [ ] imguizmo nodes
+rendering of many objects

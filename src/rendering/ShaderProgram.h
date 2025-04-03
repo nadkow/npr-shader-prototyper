@@ -67,6 +67,8 @@ public:
 
         glLinkProgram(ID);
         checkCompileErrors(ID, "PROGRAM");
+        glDetachShader(ID, vertex);
+        glDetachShader(ID, fragment);
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 
