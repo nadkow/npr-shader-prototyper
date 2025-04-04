@@ -74,6 +74,21 @@ public:
 
     }
 
+    ShaderProgram(const char* fragmentPath) : ShaderProgram("res/shaders/flat.vert", fragmentPath) {}
+
+    uint32_t recompile(const char* path) {
+        uint32_t newShaderHandle = ShaderProgram(path).ID;
+
+        // Return old shader if compilation failed
+        if (newShaderHandle == -1)
+            return ID;
+
+        glDeleteProgram(ID);
+        std::cout << "recompiled successfully\n";
+        ID = newShaderHandle;
+        return newShaderHandle;
+    }
+
     void use()
     {
         glUseProgram(ID);

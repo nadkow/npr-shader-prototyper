@@ -98,10 +98,25 @@ public:
          outputDirtyFlags = new bool[1];
     }
 
+    ShaderNodeInstance(ShaderProgram* shaderProgram) {
+        inputType = DATA;
+        outputType = SHADER;
+        outputDirtyFlags = new bool[1];
+        this->shaderProgram = shaderProgram;
+    }
+
     int getOutputCount() override {
         // the stream ends at shader nodes
         return 0;
     }
+
+    void recompile() {
+        // TODO make it so only connected nodes recompile
+        shaderProgram->recompile(path);
+    }
+
+    ShaderProgram* shaderProgram;
+    const char* path;
 };
 
 // base class for data nodes
@@ -122,13 +137,14 @@ public:
     // default value for unconnected socket
     dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
 
-    DrawFlat() {
+    DrawFlat() : ShaderNodeInstance(new ShaderProgram("res/shaders/flat.vert", "res/shaders/flat.frag")) {
         //inputs
         inputs = new socket [inputCount]{};
         defaultInputs.push_back(&color);
         currentInputs.push_back(&color);
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
+        path = "res/shaders/flat.frag";
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -210,6 +226,7 @@ private:
     GraphEditor::Template* finalNodeTemplate;
     int lastOccupiedSlot = 0;
     std::vector<NodeInstance*> connectedNodes = {nullptr};
+    std::vector<bool> inputDirtyFlag = {false};
 };
 
 /* DATA NODES */
