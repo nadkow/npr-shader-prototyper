@@ -18,7 +18,7 @@ void main()
     //invert the fresnel so the big values are on the outside
     fresnel = clamp(fresnel, 0.0, 1.0);
     //hardcoded multiplication blend mode
-    gRender.rgb = vec3(1.0, 1.0, 1.0) * fresnel * texture(iRender, gl_FragCoord.xy / resolution).rgb;
+    gRender.rgb = vec3({{ color.r }}, {{ color.g }}, {{ color.b }}) * fresnel * texture(iRender, gl_FragCoord.xy / resolution).rgb;
     //gRender.rg = gl_FragCoord.xy / resolution;
     //gRender.a = 1.0;
 }

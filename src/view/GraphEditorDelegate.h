@@ -26,6 +26,24 @@ struct Array
 
 template <typename T, typename ... U> Array(T, U...)->Array<T, 1 + sizeof...(U)>;
 
+const char* finalNodeInputNames[64] = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Layer 5", "Layer 6", "Layer 7","Layer 8","Layer 9","Layer 10",
+                                       "Layer 11", "Layer 12", "Layer 13", "Layer 14", "Layer 15", "Layer 16", "Layer 17","Layer 18","Layer 19","Layer 20"};
+
+GraphEditor::Template finalNodeTemplate = {
+        IM_COL32(110, 80, 80, 255),
+        BG_COLOR,
+        OVER_BG_COLOR,
+        1,
+        finalNodeInputNames,
+        nullptr,
+        0,
+        nullptr,
+        nullptr,
+        60
+};
+
+DrawFinal* finalNode = new DrawFinal(&finalNodeTemplate);
+
 struct GraphEditorDelegate : public GraphEditor::Delegate
 {
     bool AllowedLink(GraphEditor::NodeIndex from, GraphEditor::SlotIndex slotIndexInput, GraphEditor::NodeIndex to, GraphEditor::SlotIndex slotIndexOutput) override
@@ -119,22 +137,6 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         return mLinks[index];
     }
 
-    const char* finalNodeInputNames[64] = {"Layer 1", "Layer 2", "Layer 3", "Layer 4", "Layer 5", "Layer 6", "Layer 7","Layer 8","Layer 9","Layer 10",
-                                           "Layer 11", "Layer 12", "Layer 13", "Layer 14", "Layer 15", "Layer 16", "Layer 17","Layer 18","Layer 19","Layer 20"};
-
-    GraphEditor::Template finalNodeTemplate = {
-            IM_COL32(110, 80, 80, 255),
-            BG_COLOR,
-            OVER_BG_COLOR,
-            1,
-            finalNodeInputNames,
-            nullptr,
-            0,
-            nullptr,
-            nullptr,
-            60
-    };
-
     // Graph datas
     static inline const GraphEditor::Template mTemplates[] = {
             // final output node template PLACEHOLDER
@@ -150,7 +152,20 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     nullptr,
                     120
             },
-            // unlit shader
+            // flat color shader
+            {
+                    SHADER_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    1,
+                    Array{"Color"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Shader"},
+                    Array{ SHADER_SLOT_COLOR},
+                    80
+            },
+            // fresnel shader
             {
                     SHADER_HEAD_COLOR,
                     BG_COLOR,
@@ -219,7 +234,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     block::PREPARE,
                     400, 400,
                     false,
-                    new DrawFinal(&finalNodeTemplate)
+                    finalNode
             },
             {
                     block::passes_names[block::FLAT],
@@ -227,6 +242,13 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     200, 200,
                     false,
                     new DrawFlat()
+            },
+            {
+                    block::passes_names[block::FRESNEL],
+                    block::FRESNEL,
+                    200, 290,
+                    false,
+                    new DrawFresnel()
             },
             {
                     "color",

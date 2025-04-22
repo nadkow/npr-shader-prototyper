@@ -19,12 +19,17 @@ namespace block {
     void colorize();
     void specular();
     void ring();
+    void pass(){};
 
-    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightRev, pointLightTex, dirLight, texture, colorize, specular, ring};
-    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "point light reversed", "textured point light", "directional light", "texture", "colorize", "specular", "ring"};
-    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTREV, POINTLIGHTTEX, DIRECTIONALLIGHT, TEXTURE, COLORIZE, SPECULAR, RING};
+    std::vector<std::function<void()>> passes = {prepare, flat, fresnel, pointLight, pointLightRev, pointLightTex, texture, colorize, specular, ring, pass};
+    // passes names for display and file names
+    const char* passes_names[] = {"prepare", "flat color", "fresnel", "point light", "point light reversed", "textured point light", "texture", "colorize", "specular", "ring"};
+    enum pass_name {PREPARE, FLAT, FRESNEL, POINTLIGHT, POINTLIGHTREV, POINTLIGHTTEX, TEXTURE, COLORIZE, SPECULAR, RING, PASS};
 
-    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramRev, pointProgramTex, dirProgram, textureProgram, colorizeProgram, specularProgram, ringProgram, finalizeProgram;
+    ShaderProgram prepareProgram, flatProgram, fresnelProgram, pointProgram, pointProgramRev, pointProgramTex, textureProgram, colorizeProgram, specularProgram, ringProgram, finalizeProgram;
+    ShaderProgram* programs[] = {&prepareProgram, &flatProgram, &fresnelProgram, &pointProgram, &pointProgramRev, &pointProgramTex, &textureProgram, &colorizeProgram, &specularProgram, &ringProgram, &finalizeProgram};
+    const char* vs[] = {"res/shaders/prepare.vert", "res/shaders/flat.vert", "res/shaders/fresnel.vert", "res/shaders/point.vert", "res/shaders/point.vert", "res/shaders/pointTextured.vert", "res/shaders/texture.vert", "res/shaders/colorize.vert", "res/shaders/specular.vert", "res/shaders/ring.vert"};
+    const char* fs[] = {"res/shaders/prepare.frag", "res/shaders/flat.frag", "res/shaders/fresnel.frag", "res/shaders/point.frag", "res/shaders/pointRev.frag", "res/shaders/pointTextured.frag", "res/shaders/texture.frag", "res/shaders/colorize.frag", "res/shaders/specular.frag", "res/shaders/ring.frag"};
     unsigned int quadVAO, quadVBO;
 
     // quad for the final render
@@ -36,18 +41,11 @@ namespace block {
             1.0f, -1.0f, 0.0f, 1.0f, 0.0f,};
 
     void init() {
-        prepareProgram = ShaderProgram("res/shaders/prepare.vert", "res/shaders/prepare.frag");
-        flatProgram = ShaderProgram("res/shaders/flat.vert", "res/shaders/flat.frag");
         finalizeProgram = ShaderProgram("res/shaders/finalize.vert", "res/shaders/finalize.frag");
-        fresnelProgram = ShaderProgram("res/shaders/fresnel.vert", "res/shaders/fresnel.frag");
-        pointProgram = ShaderProgram("res/shaders/point.vert", "res/shaders/point.frag");
-        //dirProgram = ShaderProgram("res/shaders/directional.vert", "res/shaders/directional.frag");
-        textureProgram = ShaderProgram("res/shaders/texture.vert", "res/shaders/texture.frag");
-        colorizeProgram = ShaderProgram("res/shaders/colorize.vert", "res/shaders/colorize.frag");
-        pointProgramTex  = ShaderProgram("res/shaders/pointTextured.vert", "res/shaders/pointTextured.frag");
-        specularProgram = ShaderProgram("res/shaders/specular.vert", "res/shaders/specular.frag");
-        pointProgramRev = ShaderProgram("res/shaders/point.vert", "res/shaders/pointRev.frag");
         ringProgram = ShaderProgram("res/shaders/ring.vert", "res/shaders/ring.frag");
+        for (int i=0; i < PASS; i++) {
+            *programs[i] = ShaderProgram(vs[i], fs[i]);
+        }
         // TODO UBO
         //flatProgram.use();
         //flatProgram.setInt("gPosition", 0);
@@ -63,6 +61,10 @@ namespace block {
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) 0);
         glEnableVertexAttribArray(1);
         glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *) (3 * sizeof(float)));
+    }
+
+    void recompile(pass_name shader) {
+        programs[shader]->recompile(vs[shader], fs[shader]);
     }
 
     void prepare() {
@@ -177,15 +179,6 @@ namespace block {
         ringProgram.setMat4("transform", stack::node->getTransform());
         ringProgram.setVec3("viewPos", cameraPos);
         stack::model->Draw(ringProgram);
-    }
-
-    void dirLight() {
-        dirProgram.use();
-        // TODO UBO
-        dirProgram.setMat4("projection", projection);
-        dirProgram.setMat4("view", view);
-        dirProgram.setMat4("transform", stack::node->getTransform());
-        stack::model->Draw(dirProgram);
     }
 
     void texture() {

@@ -3,6 +3,8 @@
 
 #include <variant>
 
+enum slotType {DATA, SHADER, NONE};
+
 class NodeInstance {
 
 public:
@@ -19,7 +21,7 @@ public:
     std::vector<NodeInstance*>* outputs;
     std::vector<dataType> defaultOutputs;
     bool* outputDirtyFlags = nullptr;
-    enum slotType {DATA, SHADER, NONE} inputType, outputType;
+    slotType inputType, outputType;
 
     virtual ~NodeInstance() { delete[] inputs; delete[] outputs; delete[] outputDirtyFlags;}
 
@@ -98,25 +100,16 @@ public:
          outputDirtyFlags = new bool[1];
     }
 
-    ShaderNodeInstance(ShaderProgram* shaderProgram) {
-        inputType = DATA;
-        outputType = SHADER;
-        outputDirtyFlags = new bool[1];
-        this->shaderProgram = shaderProgram;
-    }
-
     int getOutputCount() override {
         // the stream ends at shader nodes
         return 0;
     }
 
-    void recompile() {
-        // TODO make it so only connected nodes recompile
-        shaderProgram->recompile(path);
-    }
+    virtual void recompile() = 0;
 
-    ShaderProgram* shaderProgram;
+    std::string shader_text;
     const char* path;
+    block::pass_name shader_type;
 };
 
 // base class for data nodes
@@ -137,21 +130,22 @@ public:
     // default value for unconnected socket
     dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
 
-    DrawFlat() : ShaderNodeInstance(new ShaderProgram("res/shaders/flat.vert", "res/shaders/flat.frag")) {
+    DrawFlat() : ShaderNodeInstance() {
         //inputs
         inputs = new socket [inputCount]{};
         defaultInputs.push_back(&color);
         currentInputs.push_back(&color);
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
-        path = "res/shaders/flat.frag";
+        path = "res/shader_templates/flat.frag";
+        shader_type = FLAT;
     };
 
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */);
-
+        if(ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */))
+            triggerEvent();
     }
 
     void updateConnect(NodeInstance* node, int inSlot) override {
@@ -169,6 +163,76 @@ public:
         return 1;
     }
 
+    void recompile() override{
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        ImVec4 tempcolor = std::get<ImVec4>(*currentInputs[0]);
+        data["color"]["r"] = tempcolor.x;
+        data["color"]["g"] = tempcolor.y;
+        data["color"]["b"] = tempcolor.z;
+        env.write(temp, data, "res/shaders/flat.frag");
+        shader_text = env.render_file(path, data);
+        block::recompile(shader_type);
+    }
+
+};
+
+class DrawFresnel : public ShaderNodeInstance {
+
+public:
+    static constexpr int inputCount = 1;
+    // default value for unconnected socket
+    dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
+
+    DrawFresnel() : ShaderNodeInstance() {
+        //inputs
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&color);
+        currentInputs.push_back(&color);
+        // outputs
+        outputs = new std::vector<NodeInstance*>[1]{};
+        path = "res/shader_templates/fresnel.frag";
+        shader_type = FRESNEL;
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        if(ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel /*| ImGuiColorEditFlags_NoPicker */))
+            triggerEvent();
+    }
+
+    void updateConnect(NodeInstance* node, int inSlot) override {
+        // TODO update flags here
+        triggerEvent();
+    }
+
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
+        // TODO same
+        inputs[inSlot].node = nullptr;
+        triggerEvent();
+    }
+
+    int getInputCount() override {
+        return 1;
+    }
+
+    void recompile() override{
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        ImVec4 tempcolor = std::get<ImVec4>(*currentInputs[0]);
+        data["color"]["r"] = tempcolor.x;
+        data["color"]["g"] = tempcolor.y;
+        data["color"]["b"] = tempcolor.z;
+        env.write(temp, data, "res/shaders/fresnel.frag");
+        shader_text = env.render_file(path, data);
+        block::recompile(shader_type);
+    }
+
 };
 
 /* FINAL OUTPUT NODE */
@@ -181,8 +245,13 @@ public:
         inputType = SHADER;
         outputType = NONE;
         finalNodeTemplate = t;
+        //shaderStack = shader;
 
         //inputs = connectedNodes.data(); TODO
+    }
+
+    void setShaderStack(ShaderStack* s) {
+        shaderStack = s;
     }
 
     void drawNode(ImRect rect, float factor) override {
@@ -208,6 +277,7 @@ public:
         } else {
             connectedNodes[inSlot] = node;
         }
+        triggerEvent();
     }
 
     void updateDisconnect(NodeInstance* node, int inSlot) override {
@@ -220,9 +290,24 @@ public:
         } else {
             connectedNodes[inSlot] = nullptr;
         }
+        triggerEvent();
+    }
+
+    void recompile() {
+        int i = 1;
+        shaderStack->blocks.resize(connectedNodes.size()+1);
+        for (NodeInstance* node : connectedNodes) {
+            if (node) {
+                shaderStack->blocks[i] = dynamic_cast<ShaderNodeInstance *>(node)->shader_type;
+            } else {
+                shaderStack->blocks[i] = PASS;
+            }
+            i++;
+        }
     }
 
 private:
+    ShaderStack* shaderStack;
     GraphEditor::Template* finalNodeTemplate;
     int lastOccupiedSlot = 0;
     std::vector<NodeInstance*> connectedNodes = {nullptr};
@@ -261,7 +346,8 @@ public:
     void drawNode(ImRect rect, float factor) override {
         ImGui::SetCursorPosX(rect.Min.x + 10);
         ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
-        ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel);
+        if(ImGui::ColorEdit4("Color", (float *) currentInputs[0], ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+            triggerEvent();
     }
 
     void updateConnect(NodeInstance* node, int inSlot) override {

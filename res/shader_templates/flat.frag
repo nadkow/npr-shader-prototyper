@@ -5,8 +5,8 @@ layout (location = 2) out vec4 gRender;
 
 void main()
 {
-    gRender.r = 1.0;
-    gRender.g = 0.0;
-    gRender.b = 0.0;
+    gRender.r = {{ color.r }};
+    gRender.g = {{ color.g }};
+    gRender.b = {{ color.b }};
     gRender.a = 1.0;
 }

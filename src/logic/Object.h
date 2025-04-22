@@ -9,6 +9,7 @@ public:
 
     std::string filename;
     GraphEditorDelegate delegate;
+    GraphManager graph_manager;
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
@@ -17,6 +18,13 @@ public:
         name.append(std::to_string(globalId));
         id = globalId;
         globalId++;
+
+        graph_manager = GraphManager();
+        events::addListener(&graph_manager);
+
+        // final node is from delegate
+        graph_manager.finalNode = finalNode;
+        finalNode->setShaderStack(&shader);
     }
 
     Object() = default;

@@ -115,9 +115,7 @@ public:
         }
     }
 
-private:
-
-    std::vector<pass_name> blocks = {PREPARE, COLORIZE};
+    std::vector<pass_name> blocks = {PREPARE};
 
 };
 

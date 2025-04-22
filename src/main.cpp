@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <inja/inja.hpp>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -60,9 +61,6 @@ int main(int, char **) {
     object_manager = ObjectManager();
     object_manager.addNewModel("res/models/rat/rat2.obj");
     object_manager.createLightObject();
-
-    GraphManager graph_manager = GraphManager();
-    events::addListener(&graph_manager);
 
     // Main loop
     while (!glfwWindowShouldClose(gui::window)) {

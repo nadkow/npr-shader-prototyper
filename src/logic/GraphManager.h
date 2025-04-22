@@ -3,6 +3,8 @@
 
 class GraphManager : public Listener {
 public:
+    DrawFinal* finalNode;
+
     void listen(BaseEvent* event) override {
         NodeEvent* nodeevent = dynamic_cast<NodeEvent*>(event);
         if (nodeevent) {
@@ -15,9 +17,11 @@ private:
     void onNodeChanged(NodeInstance* node) {
         //update current node
         node->pullData();
-        if (node->getOutputCount() == 0) {
+        if (node->outputType == SHADER) {
             //end of stream; recompile shader
             dynamic_cast<ShaderNodeInstance *>(node)->recompile();
+        } else if (node->outputType == NONE) {
+            dynamic_cast<DrawFinal *>(node)->recompile();
         } else {
             //update connected nodes downstream
             for (int i=0; i < node->getOutputCount(); i++) {
@@ -27,8 +31,6 @@ private:
             }
         }
     }
-
-    DrawFinal* finalNode;
 };
 
 #endif //NPRSPR_GRAPHMANAGER_H
