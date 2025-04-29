@@ -252,28 +252,21 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             },
             {
                     "color",
-                    2,
-                    80, 80,
-                    false,
-                    new ColorNode()
-            },
-            {
-                    "color",
-                    2,
+                    3,
                     80, 80,
                     false,
                     new ColorNode()
             },
             {
                     "float",
-                    3,
+                    4,
                     80, 80,
                     false,
                     new FloatNode()
             },
             {
                     "combine vec4",
-                    4,
+                    5,
                     80, 80,
                     false,
                     new CombineVec4Node()
