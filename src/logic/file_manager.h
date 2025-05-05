@@ -3,7 +3,7 @@
 
 namespace files {
 
-    std::string modelExtensions[2] = {"obj", "fbx"};
+    std::string modelExtensions[4] = {"obj", "fbx", "glb", "gltf"};
     std::vector<std::string> modelFiles; // to be read into at the start
 
     void readDirectory(const std::string& dirpath, std::string extensions[], std::vector<std::string> *result) {
