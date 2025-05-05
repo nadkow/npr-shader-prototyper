@@ -4,7 +4,7 @@
 #include <variant>
 
 enum slotType {DATA, SHADER, NONE};
-enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
+enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
 
 class NodeInstance {
 
@@ -181,6 +181,121 @@ public:
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
         env.write(temp, data, "res/shaders/flat.frag");
+        shader_text = env.render_file(path, data);
+        block::recompile(shader_type);
+    }
+
+};
+
+class DrawColorize : public ShaderNodeInstance {
+
+public:
+    static constexpr int inputCount = 1;
+    // default value for unconnected socket
+    dataType color = ImVec4(1.0, 1.0, 1.0, 1.);
+    ImGuiColorEditFlags flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel;
+
+    DrawColorize() : ShaderNodeInstance() {
+        //inputs
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&color);
+        currentInputs.push_back(&color);
+        // outputs
+        outputs = new std::vector<NodeInstance*>[1]{};
+        path = "res/shader_templates/colorize.frag";
+        shader_type = COLORIZE;
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        if(ImGui::ColorEdit4("Color", (float *) currentInputs[0], flags))
+            triggerEvent();
+    }
+
+    void updateConnect(NodeInstance* node, int inSlot) override {
+        triggerEvent();
+        flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoPicker;
+    }
+
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
+        inputs[inSlot].node = nullptr;
+        triggerEvent();
+        flags = ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel;
+    }
+
+    int getInputCount() override {
+        return 1;
+    }
+
+    void recompile() override{
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        ImVec4 tempcolor = std::get<ImVec4>(*currentInputs[0]);
+        data["color"]["r"] = tempcolor.x;
+        data["color"]["g"] = tempcolor.y;
+        data["color"]["b"] = tempcolor.z;
+        env.write(temp, data, "res/shaders/colorize.frag");
+        shader_text = env.render_file(path, data);
+        block::recompile(shader_type);
+    }
+
+};
+
+class DrawRing : public ShaderNodeInstance {
+
+public:
+    static constexpr int inputCount = 1;
+    // default value for unconnected socket
+    dataType bands = 8;
+    ImGuiInputTextFlags flags = ImGuiInputTextFlags_None;
+
+    DrawRing() : ShaderNodeInstance() {
+        //inputs
+        inputs = new socket [inputCount]{};
+        defaultInputs.push_back(&bands);
+        currentInputs.push_back(&bands);
+        // outputs
+        outputs = new std::vector<NodeInstance*>[1]{};
+        path = "res/shader_templates/ring.frag";
+        shader_type = RING;
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::PushItemWidth(80);
+        if(ImGui::InputInt("bands", (int *) &bands, 1, 1, flags)) {
+            if (std::get<int>(bands) < 1) bands = 1;
+            else if (std::get<int>(bands) > 32) bands = 32;
+            triggerEvent();
+        }
+    }
+
+    void updateConnect(NodeInstance* node, int inSlot) override {
+        triggerEvent();
+        flags = ImGuiInputTextFlags_ReadOnly;
+    }
+
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
+        inputs[inSlot].node = nullptr;
+        triggerEvent();
+        flags = ImGuiInputTextFlags_None;
+    }
+
+    int getInputCount() override {
+        return 1;
+    }
+
+    void recompile() override{
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        data["bands"] = std::get<int>(bands);
+        env.write(temp, data, "res/shaders/ring.frag");
         shader_text = env.render_file(path, data);
         block::recompile(shader_type);
     }
@@ -529,6 +644,8 @@ NodeInstance* instantiateNode(nodeType type) {
     switch(type) {
         case SHADER_FLAT: return new DrawFlat();
         case SHADER_FRESNEL: return new DrawFresnel();
+        case SHADER_COLORIZE: return new DrawColorize();
+        case SHADER_RING: return new DrawRing();
         case DATA_COLOR: return new ColorNode();
         case DATA_FLOAT: return new FloatNode();
         case DATA_COMBINEVEC4: return new CombineVec4Node();

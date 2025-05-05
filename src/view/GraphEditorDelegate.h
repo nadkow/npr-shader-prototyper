@@ -214,6 +214,32 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{ SHADER_SLOT_COLOR},
                     80
             },
+            // SHADER_COLORIZE
+            {
+                    SHADER_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    1,
+                    Array{"Color"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Shader"},
+                    Array{ SHADER_SLOT_COLOR},
+                    80
+            },
+            // SHADER_RING
+            {
+                    SHADER_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    1,
+                    Array{"int"},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Shader"},
+                    Array{ SHADER_SLOT_COLOR},
+                    80
+            },
             // DATA_COLOR
             {
                     DEFAULT_HEAD_COLOR,
@@ -290,6 +316,14 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             {
                     "fresnel",
                     SHADER_FRESNEL
+            },
+            {
+                "colorize",
+                SHADER_COLORIZE
+            },
+            {
+                "metal (ring)",
+                SHADER_RING
             }
     };
 
