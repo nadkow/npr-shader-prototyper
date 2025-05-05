@@ -70,6 +70,8 @@ static ImRect GetNodeRect(const Node& node, float factor)
 static ImVec2 editingNodeSource;
 static bool editingInput = false;
 static ImVec2 captureOffset;
+static bool showNewNodeMenu = false;
+static ImVec2 lastRMBPos;
 
 enum NodeOperation
 {
@@ -454,6 +456,7 @@ static bool DrawNode(ImDrawList* drawList,
     ImGuiIO& io = ImGui::GetIO();
     const auto node = delegate.GetNode(nodeIndex);
     const auto nodeTemplate = delegate.GetTemplate(node.mTemplateIndex);
+    // TODO reference this for graph nodes drawing
     const ImVec2 nodeRectangleMin = offset + node.mRect.Min * factor;
 
     const bool old_any_active = ImGui::IsAnyItemActive();
@@ -743,6 +746,7 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
     ImRect regionRect(windowPos, windowPos + canvasSize);
 
     HandleZoomScroll(regionRect, viewState, options);
+    // TODO also this
     ImVec2 offset = ImGui::GetCursorScreenPos() + viewState.mPosition * viewState.mFactor;
     captureOffset = viewState.mPosition * viewState.mFactor;
 
@@ -922,6 +926,14 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
                 (ImGui::IsMouseClicked(1) /*|| (ImGui::IsWindowFocused() && ImGui::IsKeyPressedMap(ImGuiKey_Tab))*/))
         {
             delegate.RightClick(nodeOver, inputSlotOver, outputSlotOver);
+            showNewNodeMenu = true;
+            lastRMBPos = ImGui::GetIO().MousePos;
+            ImGui::OpenPopup("Add new node");
+        }
+
+        if (showNewNodeMenu)
+        {
+            delegate.displayNewNodeMenu(lastRMBPos);
         }
 
         // Scrolling
@@ -949,6 +961,7 @@ void Show(Delegate& delegate, const Options& options, ViewState& viewState, bool
     {
         *fit = Fit_None;
     }
+
 }
 
 bool EditOptions(Options& options)

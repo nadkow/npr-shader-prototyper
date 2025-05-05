@@ -70,7 +70,43 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     }
 
     void RightClick(GraphEditor::NodeIndex nodeIndex, GraphEditor::SlotIndex slotIndexInput, GraphEditor::SlotIndex slotIndexOutput) override
-    { //add new node TODO
+    {
+        // RMB click is detected anywhere but yields garbage value if not clicked on node slot
+    }
+
+    void displayNewNodeMenu(ImVec2 mousePos) override {
+        ImGui::SetNextWindowPos(mousePos);
+        ImGui::SetNextWindowSize(ImVec2{90,0});
+        if(ImGui::BeginPopup("Add new node")) {
+            ImGui::TextColored({.5, .5, .5, 1.f}, "Add new node");
+            if (ImGui::BeginMenu("data nodes"))
+            {
+                for (NodeBlueprint nb: nodeBlueprints) {
+                    if (nb.type >= DATA_COLOR) {
+                        if (ImGui::Selectable(nb.name, false)) {
+                            mNodes.push_back(
+                                    {nb.name, static_cast<GraphEditor::TemplateIndex>(nb.type), mousePos.x, mousePos.y,
+                                     true, instantiateNode(nb.type)});
+                        }
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            if (ImGui::BeginMenu("shader nodes"))
+            {
+                for (NodeBlueprint nb: nodeBlueprints) {
+                    if (nb.type < DATA_COLOR) {
+                        if (ImGui::Selectable(nb.name, false)) {
+                            mNodes.push_back(
+                                    {nb.name, static_cast<GraphEditor::TemplateIndex>(nb.type), mousePos.x, mousePos.y,
+                                     true, instantiateNode(nb.type)});
+                        }
+                    }
+                }
+                ImGui::EndMenu();
+            }
+            ImGui::EndPopup();
+        }
     }
 
     void AddLink(GraphEditor::NodeIndex inputNodeIndex, GraphEditor::SlotIndex inputSlotIndex, GraphEditor::NodeIndex outputNodeIndex, GraphEditor::SlotIndex outputSlotIndex) override
@@ -137,9 +173,9 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         return mLinks[index];
     }
 
-    // Graph datas
+    // REFER TO nodeType ENUM FOR ORDER
     static inline const GraphEditor::Template mTemplates[] = {
-            // final output node template PLACEHOLDER
+            // FINAL output node template PLACEHOLDER
             {
                     IM_COL32(110, 80, 80, 255),
                     BG_COLOR,
@@ -152,7 +188,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     nullptr,
                     120
             },
-            // flat color shader
+            // SHADER_FLAT
             {
                     SHADER_HEAD_COLOR,
                     BG_COLOR,
@@ -165,7 +201,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{ SHADER_SLOT_COLOR},
                     80
             },
-            // fresnel shader
+            // SHADER_FRESNEL
             {
                     SHADER_HEAD_COLOR,
                     BG_COLOR,
@@ -178,7 +214,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{ SHADER_SLOT_COLOR},
                     80
             },
-            // color
+            // DATA_COLOR
             {
                     DEFAULT_HEAD_COLOR,
                     BG_COLOR,
@@ -191,7 +227,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{ DEFAULT_SLOT_COLOR},
                     80
             },
-            // float
+            // DATA_FLOAT
             {
                     DEFAULT_HEAD_COLOR,
                     BG_COLOR,
@@ -204,7 +240,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{ DEFAULT_SLOT_COLOR},
                     80
             },
-            // combine vec4
+            // DATA_COMBINEVEC4
             {
                     DEFAULT_HEAD_COLOR,
                     BG_COLOR,
@@ -228,6 +264,35 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         NodeInstance* instance;
     };
 
+    struct NodeBlueprint
+    {
+        const char* name;
+        nodeType type;
+    };
+
+    std::vector<NodeBlueprint> nodeBlueprints = {
+            {
+                    "color",
+                    DATA_COLOR
+            },
+            {
+                    "float",
+                    DATA_FLOAT
+            },
+            {
+                    "combine vec4",
+                    DATA_COMBINEVEC4
+            },
+            {
+                    "flat",
+                    SHADER_FLAT
+            },
+            {
+                    "fresnel",
+                    SHADER_FRESNEL
+            }
+    };
+
     std::vector<Node> mNodes = {
             {
                     "final output",
@@ -235,41 +300,6 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     400, 400,
                     false,
                     finalNode
-            },
-            {
-                    block::passes_names[block::FLAT],
-                    block::FLAT,
-                    200, 200,
-                    false,
-                    new DrawFlat()
-            },
-            {
-                    block::passes_names[block::FRESNEL],
-                    block::FRESNEL,
-                    200, 290,
-                    false,
-                    new DrawFresnel()
-            },
-            {
-                    "color",
-                    3,
-                    80, 80,
-                    false,
-                    new ColorNode()
-            },
-            {
-                    "float",
-                    4,
-                    80, 80,
-                    false,
-                    new FloatNode()
-            },
-            {
-                    "combine vec4",
-                    5,
-                    80, 80,
-                    false,
-                    new CombineVec4Node()
             }
     };
 

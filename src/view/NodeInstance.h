@@ -4,6 +4,7 @@
 #include <variant>
 
 enum slotType {DATA, SHADER, NONE};
+enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
 
 class NodeInstance {
 
@@ -510,4 +511,28 @@ public:
         std::get<ImVec4>(vec) = ImVec4(std::get<float>(*currentInputs[0]), std::get<float>(*currentInputs[1]), std::get<float>(*currentInputs[2]), std::get<float>(*currentInputs[3]));
     }
 };
+
+/**
+std::unique_ptr<NodeInstance> instantiateNode(nodeType type) {
+    switch(type) {
+        case SHADER_FLAT: return std::make_unique<DrawFlat>();
+        case SHADER_FRESNEL: return std::make_unique<DrawFresnel>();
+        case DATA_COLOR: return std::make_unique<ColorNode>();
+        case DATA_FLOAT: return std::make_unique<FloatNode>();
+        case DATA_COMBINEVEC4: return std::make_unique<CombineVec4Node>();
+        default: return nullptr;
+    }
+}
+ **/
+
+NodeInstance* instantiateNode(nodeType type) {
+    switch(type) {
+        case SHADER_FLAT: return new DrawFlat();
+        case SHADER_FRESNEL: return new DrawFresnel();
+        case DATA_COLOR: return new ColorNode();
+        case DATA_FLOAT: return new FloatNode();
+        case DATA_COMBINEVEC4: return new CombineVec4Node();
+        default: return nullptr;
+    }
+}
 #endif //NPRSPR_NODEINSTANCE_H
