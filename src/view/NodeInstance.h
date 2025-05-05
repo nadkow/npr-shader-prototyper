@@ -4,7 +4,7 @@
 #include <variant>
 
 enum slotType {DATA, SHADER, NONE};
-enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
+enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, SHADER_TEXTURE, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
 
 class NodeInstance {
 
@@ -298,6 +298,44 @@ public:
         env.write(temp, data, "res/shaders/ring.frag");
         shader_text = env.render_file(path, data);
         block::recompile(shader_type);
+    }
+
+};
+
+class DrawTexture : public ShaderNodeInstance {
+
+public:
+    static constexpr int inputCount = 0;
+
+    DrawTexture() : ShaderNodeInstance() {
+        // outputs
+        outputs = new std::vector<NodeInstance*>[1]{};
+        path = "";
+        shader_type = TEXTURE;
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::PushItemWidth(80);
+        ImGui::Text("default texture");
+    }
+
+    void updateConnect(NodeInstance* node, int inSlot) override {
+        triggerEvent();
+    }
+
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
+        inputs[inSlot].node = nullptr;
+        triggerEvent();
+    }
+
+    int getInputCount() override {
+        return 0;
+    }
+
+    void recompile() override{
+
     }
 
 };
@@ -646,6 +684,7 @@ NodeInstance* instantiateNode(nodeType type) {
         case SHADER_FRESNEL: return new DrawFresnel();
         case SHADER_COLORIZE: return new DrawColorize();
         case SHADER_RING: return new DrawRing();
+        case SHADER_TEXTURE: return new DrawTexture();
         case DATA_COLOR: return new ColorNode();
         case DATA_FLOAT: return new FloatNode();
         case DATA_COMBINEVEC4: return new CombineVec4Node();
