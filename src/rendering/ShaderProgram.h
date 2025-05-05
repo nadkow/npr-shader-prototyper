@@ -82,7 +82,6 @@ public:
             return ID;
 
         glDeleteProgram(ID);
-        std::cout << "recompiled successfully\n";
         ID = newShaderHandle;
         return newShaderHandle;
     }
