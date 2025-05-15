@@ -22,9 +22,9 @@ public:
         graph_manager = GraphManager();
         events::addListener(&graph_manager);
 
-        // final node is from delegate
-        graph_manager.finalNode = finalNode;
-        finalNode->setShaderStack(&shader);
+        delegate.addFinalNode();
+        graph_manager.finalNode = delegate.finalNode;
+        delegate.finalNode->setShaderStack(&shader);
     }
 
     Object() = default;
