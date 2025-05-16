@@ -13,7 +13,7 @@ public:
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
-        shader = ShaderStack();
+        shader = ShaderProgram("res/shaders/default.vert", "res/shaders/default.frag");
         extractFilename();
         name.append(std::to_string(globalId));
         id = globalId;
@@ -24,16 +24,21 @@ public:
 
         delegate.addFinalNode();
         graph_manager.finalNode = delegate.finalNode;
-        delegate.finalNode->setShaderStack(&shader);
+        delegate.finalNode->setShaderProgram(&shader);
     }
 
     Object() = default;
 
     void draw() {
         // update context before drawing
-        stack::model = &model;
+        //stack::model = &model;
         stack::node = &node;
-        shader.draw();
+        shader.use();
+        shader.setMat4("projection", projection);
+        shader.setMat4("view", view);
+        shader.setMat4("transform", stack::node->getTransform());
+        shader.setVec3("viewPos", cameraPos);
+        model.Draw(shader);
     }
 
     void changeFile(const std::string& newfilename) {
@@ -43,45 +48,9 @@ public:
         name.append(std::to_string(id));
     }
 
-    void showcaseFlat() {
-        shader.showcaseFlat();
-    }
-
-    void showcaseFresnel() {
-        shader.showcaseFresnel();
-    }
-
-    void showcaseRing() {
-        shader.showcaseRing();
-    }
-
-    void showcasePoint() {
-        shader.showcasePoint();
-    }
-
-    void showcasePointTex() {
-        shader.showcasePointTex();
-    }
-
-    void showcaseTex() {
-        shader.showcaseTex();
-    }
-
-    void showcaseColorize() {
-        shader.showcaseColorize();
-    }
-
-    void showcaseSpecular() {
-        shader.showcaseSpecular();
-    }
-
-    void showcasePointReversed() {
-        shader.showcasePointReversed();
-    }
-
 private:
     Model model;
-    ShaderStack shader;
+    ShaderProgram shader;
 
     void extractFilename() {
         // extract name from filepath

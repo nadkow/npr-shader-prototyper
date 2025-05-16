@@ -33,33 +33,6 @@ namespace gui {
         if (key == GLFW_KEY_R && action == GLFW_PRESS) {
             currentGizmoOperation = ImGuizmo::SCALE;
         }
-        if (key == GLFW_KEY_F && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcaseFlat();
-        }
-        if (key == GLFW_KEY_G && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcaseFresnel();
-        }
-        if (key == GLFW_KEY_P && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcasePoint();
-        }
-        if (key == GLFW_KEY_L && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcasePointTex();
-        }
-        if (key == GLFW_KEY_T && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcaseTex();
-        }
-        if (key == GLFW_KEY_C && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcaseColorize();
-        }
-        if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcaseSpecular();
-        }
-        if (key == GLFW_KEY_O && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcasePointReversed();
-        }
-        if (key == GLFW_KEY_I && action == GLFW_PRESS) {
-            if (selectedObject) selectedObject->showcaseRing();
-        }
     }
 
     void process_input() {

@@ -116,7 +116,7 @@ public:
 
     std::string shader_text;
     const char* path;
-    block::pass_name shader_type;
+    //block::pass_name shader_type;
 };
 
 // base class for data nodes
@@ -146,7 +146,15 @@ public:
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
         path = "res/shader_templates/flat.frag";
-        shader_type = FLAT;
+        // can't invoke recompile() here ugh
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        ImVec4 tempcolor = std::get<ImVec4>(*currentInputs[0]);
+        data["color"]["r"] = tempcolor.x;
+        data["color"]["g"] = tempcolor.y;
+        data["color"]["b"] = tempcolor.z;
+        shader_text = env.render(temp, data);
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -171,7 +179,7 @@ public:
         return 1;
     }
 
-    void recompile() override{
+    void recompile() override {
         // not recompile, just edit the file
         inja::Environment env;
         inja::Template temp = env.parse_template(path);
@@ -180,9 +188,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
-        env.write(temp, data, "res/shaders/flat.frag");
-        shader_text = env.render_file(path, data);
-        block::recompile(shader_type);
+        shader_text = env.render(temp, data);
     }
 
 };
@@ -203,7 +209,15 @@ public:
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
         path = "res/shader_templates/colorize.frag";
-        shader_type = COLORIZE;
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        ImVec4 tempcolor = std::get<ImVec4>(*currentInputs[0]);
+        data["color"]["r"] = tempcolor.x;
+        data["color"]["g"] = tempcolor.y;
+        data["color"]["b"] = tempcolor.z;
+        shader_text = env.render(temp, data);
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -237,9 +251,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
-        env.write(temp, data, "res/shaders/colorize.frag");
-        shader_text = env.render_file(path, data);
-        block::recompile(shader_type);
+        shader_text = env.render(temp, data);
     }
 
 };
@@ -260,7 +272,12 @@ public:
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
         path = "res/shader_templates/ring.frag";
-        shader_type = RING;
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        data["bands"] = std::get<int>(bands);
+        shader_text = env.render(temp, data);
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -295,9 +312,7 @@ public:
         inja::Template temp = env.parse_template(path);
         inja::json data;
         data["bands"] = std::get<int>(bands);
-        env.write(temp, data, "res/shaders/ring.frag");
-        shader_text = env.render_file(path, data);
-        block::recompile(shader_type);
+        shader_text = env.render(temp, data);
     }
 
 };
@@ -311,7 +326,7 @@ public:
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
         path = "";
-        shader_type = TEXTURE;
+        //shader_type = TEXTURE;
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -340,6 +355,8 @@ public:
 
 };
 
+static int graphCount = 0;
+
 class DrawFresnel : public ShaderNodeInstance {
 
 public:
@@ -356,7 +373,15 @@ public:
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
         path = "res/shader_templates/fresnel.frag";
-        shader_type = FRESNEL;
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        ImVec4 tempcolor = std::get<ImVec4>(*currentInputs[0]);
+        data["color"]["r"] = tempcolor.x;
+        data["color"]["g"] = tempcolor.y;
+        data["color"]["b"] = tempcolor.z;
+        shader_text = env.render(temp, data);
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -390,9 +415,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
-        env.write(temp, data, "res/shaders/fresnel.frag");
-        shader_text = env.render_file(path, data);
-        block::recompile(shader_type);
+        shader_text = env.render(temp, data);
     }
 
 };
@@ -407,13 +430,14 @@ public:
         inputType = SHADER;
         outputType = NONE;
         finalNodeTemplate = t;
-        //shaderStack = shader;
-
-        //inputs = connectedNodes.data(); TODO
+        graphCount++;
+        filename = "res/shaders/graph";
+        filename.append(std::to_string(graphCount));
+        filename.append(".frag");
     }
 
-    void setShaderStack(ShaderStack* s) {
-        shaderStack = s;
+    void setShaderProgram(ShaderProgram* s) {
+        shader = s;
     }
 
     void drawNode(ImRect rect, float factor) override {
@@ -435,9 +459,9 @@ public:
             finalNodeTemplate->mInputCount += 1;
             finalNodeTemplate->mHeight += 40;
             lastOccupiedSlot = inSlot;
-            connectedNodes.insert(connectedNodes.end()-1, node);
+            connectedNodes.insert(connectedNodes.end()-1, dynamic_cast<ShaderNodeInstance *>(node));
         } else {
-            connectedNodes[inSlot] = node;
+            connectedNodes[inSlot] = dynamic_cast<ShaderNodeInstance *>(node);
         }
         triggerEvent();
     }
@@ -457,24 +481,33 @@ public:
 
     void recompile() {
         int i = 1;
-        shaderStack->blocks.resize(connectedNodes.size()+1);
-        for (NodeInstance* node : connectedNodes) {
+        std::ofstream out(filename, std::ios::out | std::ios::trunc);
+        if (!out) {
+            std::cerr << "Failed to open file: " << filename << std::endl;
+            return;
+        }
+        std::ifstream prefix("res/shader_templates/default.frag", std::ios::in);
+        out << std::string((std::istreambuf_iterator<char>(prefix)),std::istreambuf_iterator<char>());
+        prefix.close();
+        for (ShaderNodeInstance* node : connectedNodes) {
             if (node) {
-                shaderStack->blocks[i] = dynamic_cast<ShaderNodeInstance *>(node)->shader_type;
-            } else {
-                shaderStack->blocks[i] = PASS;
+                out << node->shader_text << "\n";
             }
             i++;
         }
+        out << "}";
+        out.close();
+        shader->recompile("res/shaders/default.vert", filename.c_str());
     }
 
     void recalculateOutput() override {}
 
 private:
-    ShaderStack* shaderStack;
+    std::string filename;
+    ShaderProgram* shader;
     GraphEditor::Template* finalNodeTemplate;
     int lastOccupiedSlot = 0;
-    std::vector<NodeInstance*> connectedNodes = {nullptr};
+    std::vector<ShaderNodeInstance*> connectedNodes = {nullptr};
     std::vector<bool> inputDirtyFlag = {false};
 };
 

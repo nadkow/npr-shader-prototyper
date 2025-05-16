@@ -20,8 +20,9 @@ private:
         if (node->outputType == SHADER) {
             //end of stream; recompile shader
             dynamic_cast<ShaderNodeInstance *>(node)->recompile();
+            finalNode->recompile();
         } else if (node->outputType == NONE) {
-            dynamic_cast<DrawFinal *>(node)->recompile();
+            finalNode->recompile();
         } else {
             //update connected nodes downstream
             for (int i=0; i < node->getOutputCount(); i++) {

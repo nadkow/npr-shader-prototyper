@@ -78,11 +78,14 @@ public:
         uint32_t newShaderHandle = ShaderProgram(vpath, fpath).ID;
 
         // Return old shader if compilation failed
-        if (newShaderHandle == -1)
+        if (newShaderHandle == -1) {
+            spdlog::error("Shader recompilation failed");
             return ID;
+        }
 
         glDeleteProgram(ID);
         ID = newShaderHandle;
+        spdlog::info("Shader recompiled successfully");
         return newShaderHandle;
     }
 

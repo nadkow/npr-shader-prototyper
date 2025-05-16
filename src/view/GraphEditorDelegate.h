@@ -50,7 +50,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         finalNode = new DrawFinal(&finalNodeTemplate);
         mNodes.push_back({
                                  "final output",
-                                 block::PREPARE,
+                                 0,
                                  400, 400,
                                  false,
                                  finalNode
