@@ -13,7 +13,7 @@ public:
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
-        shader = ShaderProgram("res/shaders/default.vert", "res/shaders/default.frag");
+        shader = new ShaderProgram("res/shaders/default.vert", "res/shaders/default.frag");
         extractFilename();
         name.append(std::to_string(globalId));
         id = globalId;
@@ -24,7 +24,7 @@ public:
 
         delegate.addFinalNode();
         graph_manager.finalNode = delegate.finalNode;
-        delegate.finalNode->setShaderProgram(&shader);
+        delegate.finalNode->setShaderProgram(shader);
     }
 
     Object() = default;
@@ -33,12 +33,12 @@ public:
         // update context before drawing
         //stack::model = &model;
         stack::node = &node;
-        shader.use();
-        shader.setMat4("projection", projection);
-        shader.setMat4("view", view);
-        shader.setMat4("transform", stack::node->getTransform());
-        shader.setVec3("viewPos", cameraPos);
-        model.Draw(shader);
+        shader->use();
+        shader->setMat4("projection", projection);
+        shader->setMat4("view", view);
+        shader->setMat4("transform", stack::node->getTransform());
+        shader->setVec3("viewPos", cameraPos);
+        model.Draw(*shader);
     }
 
     void changeFile(const std::string& newfilename) {
@@ -48,9 +48,15 @@ public:
         name.append(std::to_string(id));
     }
 
+    void changeDelegate(GraphEditorDelegate* d) {
+        delegate = *d;
+        graph_manager.finalNode = delegate.finalNode;
+        shader = delegate.finalNode->shader;
+    }
+
 private:
     Model model;
-    ShaderProgram shader;
+    ShaderProgram* shader;
 
     void extractFilename() {
         // extract name from filepath

@@ -24,6 +24,12 @@ add_library(graph_editor STATIC ${IMGUIZMO_DIR}/GraphEditor.cpp)
 target_include_directories(imguizmo PRIVATE ${IMGUIZMO_DIR})
 target_include_directories(graph_editor PRIVATE ${IMGUIZMO_DIR})
 
+# ImGuiFileDialog
+set(IMGUIFILEDIALOG_DIR ${CMAKE_CURRENT_LIST_DIR}/ImGuiFileDialog)
+set (ImGuiFileDialog_SOURCE_DIR ${IMGUIFILEDIALOG_DIR} CACHE INTERNAL "")
+add_library(ImGuiFileDialog STATIC ${IMGUIFILEDIALOG_DIR}/ImGuiFileDialog.cpp)
+target_include_directories(ImGuiFileDialog PRIVATE ${IMGUIFILEDIALOG_DIR})
+
 # ImGui implementations
 set(IMGUI_IMPL_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui_impl)
 set(imgui_impl_SOURCE_DIR ${IMGUI_IMPL_DIR} CACHE INTERNAL "")
@@ -37,6 +43,7 @@ CPMAddPackage("gh:g-truc/glm#0.9.9.8")
 CPMAddPackage("gh:ocornut/imgui#v1.90.4-docking")
 CPMAddPackage("gh:gabime/spdlog@1.10.0")
 CPMAddPackage("gh:pantor/inja@3.4.0")
+CPMAddPackage("gh:jbeder/yaml-cpp#0.8.0")
 
 set(imgui_SOURCE_DIR ${imgui_SOURCE_DIR} CACHE INTERNAL "")
 add_library(imgui STATIC ${imgui_SOURCE_DIR}/imgui.cpp
@@ -46,6 +53,7 @@ add_library(imgui STATIC ${imgui_SOURCE_DIR}/imgui.cpp
 					     ${imgui_SOURCE_DIR}/imgui_widgets.cpp)
 
 target_include_directories(imguizmo PRIVATE ${imgui_SOURCE_DIR})
+target_include_directories(ImGuiFileDialog PRIVATE ${imgui_SOURCE_DIR})
 target_include_directories(graph_editor PRIVATE ${imgui_SOURCE_DIR})
 target_include_directories(imgui_impl PRIVATE ${imgui_SOURCE_DIR} ${glfw_SOURCE_DIR})
 
@@ -59,6 +67,8 @@ set_target_properties(glad
                       imguizmo
 					  graph_editor
 					  inja
+					  yaml-cpp
+					  ImGuiFileDialog
                       spdlog PROPERTIES FOLDER "thirdparty")
 
 if (TARGET zlibstatic)

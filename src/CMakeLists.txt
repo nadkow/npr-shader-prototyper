@@ -24,8 +24,6 @@ add_executable(${PROJECT_NAME} ${HEADER_FILES} ${SOURCE_FILES} ${ASSETS_FILES}
 		gl_version.h
         logic/Object.h
 		logic/file_manager.h
-		logic/ShaderStack.h
-		rendering/shader_block.h
 		rendering/stack_state.h
 		logic/common.h
 		rendering/object_renderer.h
@@ -48,6 +46,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
 												  ${stb_image_SOURCE_DIR}
 												  ${imgui_SOURCE_DIR}
 												  ${imguizmo_SOURCE_DIR}
+												  ${ImGuiFileDialog_SOURCE_DIR}
 												  ${imgui_impl_SOURCE_DIR})
 
 target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
@@ -61,6 +60,8 @@ target_link_libraries(${PROJECT_NAME} imgui_impl)
 target_link_libraries(${PROJECT_NAME} imguizmo)
 target_link_libraries(${PROJECT_NAME} graph_editor)
 target_link_libraries(${PROJECT_NAME} spdlog)
+target_link_libraries(${PROJECT_NAME} yaml-cpp)
+target_link_libraries(${PROJECT_NAME} ImGuiFileDialog)
 target_link_libraries(${PROJECT_NAME} glm::glm)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD 

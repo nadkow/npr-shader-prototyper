@@ -129,9 +129,24 @@ namespace gui {
         ImGui::NewFrame();
     }
 
+    void ShowFileMenu() {
+        if (ImGui::MenuItem("Open...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileOpenKey", "Choose File", ".ngraph");;
+        if (ImGui::MenuItem("Save", "Ctrl+S")) files::save(selectedObject);
+        if (ImGui::MenuItem("Save As...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileSaveKey", "Choose File", ".ngraph");;
+    }
+
     void render_graph_editor() {
 
-        ImGui::Begin("Graph Editor", NULL, 0);
+        ImGui::Begin("Graph Editor", NULL, ImGuiWindowFlags_MenuBar);
+
+        if (ImGui::BeginMenuBar()) {
+            if (ImGui::BeginMenu("File")) {
+                ShowFileMenu();
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+
         if (ImGui::Button("Fit all nodes")) {
             fit = GraphEditor::Fit_AllNodes;
         }
@@ -146,6 +161,23 @@ namespace gui {
             GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
 
         ImGui::End();
+    }
+
+    void render_menu_bar() {
+        if (ImGuiFileDialog::Instance()->Display("ChooseFileOpenKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                files::open(filePathName, selectedObject);
+            }
+            ImGuiFileDialog::Instance()->Close();
+        }
+        if (ImGuiFileDialog::Instance()->Display("ChooseFileSaveKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                files::save_as(filePathName, selectedObject);
+            }
+            ImGuiFileDialog::Instance()->Close();
+        }
     }
 
     void render_object_list() {
@@ -250,6 +282,7 @@ namespace gui {
         draw_imguizmo();
         render_object_list();
         render_graph_editor();
+        render_menu_bar();
     }
 
     void imgui_end() {

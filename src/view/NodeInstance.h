@@ -5,6 +5,7 @@
 
 enum slotType {DATA, SHADER, NONE};
 enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, SHADER_TEXTURE, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
+const char* nodeNames[] {"final", "flat", "fresnel", "colorize", "metal (ring)", "texture", "color", "float", "combine vec4"};
 
 class NodeInstance {
 
@@ -425,6 +426,8 @@ public:
 class DrawFinal : public NodeInstance {
 
 public:
+    std::string filename;
+    ShaderProgram* shader;
 
     DrawFinal(GraphEditor::Template* t) {
         inputType = SHADER;
@@ -434,6 +437,19 @@ public:
         filename = "res/shaders/graph";
         filename.append(std::to_string(graphCount));
         filename.append(".frag");
+    }
+
+    DrawFinal() {
+        inputType = SHADER;
+        outputType = NONE;
+        graphCount++;
+        filename = "res/shaders/graph";
+        filename.append(std::to_string(graphCount));
+        filename.append(".frag");
+    }
+
+    void setTemplate(GraphEditor::Template* t) {
+        finalNodeTemplate = t;
     }
 
     void setShaderProgram(ShaderProgram* s) {
@@ -500,11 +516,13 @@ public:
         shader->recompile("res/shaders/default.vert", filename.c_str());
     }
 
+    void compile() {
+        shader = new ShaderProgram("res/shaders/default.vert", filename.c_str());
+    }
+
     void recalculateOutput() override {}
 
 private:
-    std::string filename;
-    ShaderProgram* shader;
     GraphEditor::Template* finalNodeTemplate;
     int lastOccupiedSlot = 0;
     std::vector<ShaderNodeInstance*> connectedNodes = {nullptr};
@@ -713,6 +731,7 @@ std::unique_ptr<NodeInstance> instantiateNode(nodeType type) {
 
 NodeInstance* instantiateNode(nodeType type) {
     switch(type) {
+        case FINAL: return new DrawFinal();
         case SHADER_FLAT: return new DrawFlat();
         case SHADER_FRESNEL: return new DrawFresnel();
         case SHADER_COLORIZE: return new DrawColorize();

@@ -320,6 +320,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
         nodeType type;
     };
 
+    // TODO rearrange
     std::vector<NodeBlueprint> nodeBlueprints = {
             {
                     "color",
