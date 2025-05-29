@@ -93,7 +93,6 @@ namespace gui {
         // Setup style
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsClassic();
-
     }
 
     bool init() {
@@ -110,6 +109,11 @@ namespace gui {
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         glfwSetKeyCallback(window, key_callback);
         glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+
+        int width, height;
+        glfwGetFramebufferSize(window, &width, &height);
+        glViewport(0, 0, width, height+19);
+        projection = glm::perspective(glm::radians(45.0f), (float) width / height, 0.1f, 100.0f);
     }
 
     void imgui_begin() {
