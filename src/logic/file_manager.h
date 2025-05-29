@@ -91,7 +91,8 @@ namespace files {
                 static_cast<int8_t>(taskfile["links"][i]["OutputSlotIndex"].as<int>())
                                           );
             }
-                obj->changeDelegate(&delegate);
+            obj->changeDelegate(&delegate);
+            obj->delegate.finalNode->recompile();
         }
     }
 
