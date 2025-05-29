@@ -1,6 +1,9 @@
 #ifndef NPRSPR_FILE_MANAGER_H
 #define NPRSPR_FILE_MANAGER_H
 
+#include <chrono>
+#include <format>
+
 namespace files {
 
     std::string modelExtensions[4] = {"obj", "fbx", "glb", "gltf"};
@@ -56,7 +59,28 @@ namespace files {
                     delegate.mNodes.push_back(
                             {nodeNames[type], static_cast<GraphEditor::TemplateIndex>(type), x, y,
                              true, instantiateNode(type)});
-                    // TODO read values
+                    NodeInstance* currentnode = delegate.mNodes[i].instance;
+                    for (int inputno = 0; inputno < currentnode->getInputCount(); inputno++) {
+                        int index = taskfile["nodes"][i]["inputs"][inputno]["index"].as<int>();
+                        switch(index) {
+                            case 0:
+                                *currentnode->currentInputs[inputno] = taskfile["nodes"][i]["inputs"][inputno]["value"].as<int>();
+                                break;
+                            case 1:
+                                *currentnode->currentInputs[inputno] = taskfile["nodes"][i]["inputs"][inputno]["value"].as<float>();
+                                break;
+                            case 2:
+                                std::get<ImVec2>(*currentnode->currentInputs[inputno]).x = taskfile["nodes"][i]["inputs"][inputno]["value"]["x"].as<float>();
+                                std::get<ImVec2>(*currentnode->currentInputs[inputno]).y = taskfile["nodes"][i]["inputs"][inputno]["value"]["y"].as<float>();
+                                break;
+                            case 3:
+                                std::get<ImVec4>(*currentnode->currentInputs[inputno]).x = taskfile["nodes"][i]["inputs"][inputno]["value"]["x"].as<float>();
+                                std::get<ImVec4>(*currentnode->currentInputs[inputno]).y = taskfile["nodes"][i]["inputs"][inputno]["value"]["y"].as<float>();
+                                std::get<ImVec4>(*currentnode->currentInputs[inputno]).z = taskfile["nodes"][i]["inputs"][inputno]["value"]["z"].as<float>();
+                                std::get<ImVec4>(*currentnode->currentInputs[inputno]).w = taskfile["nodes"][i]["inputs"][inputno]["value"]["w"].as<float>();
+                                break;
+                        }
+                    }
                 }
             }
             for (int i = 0; i < nooflinks; i++) {
@@ -77,6 +101,8 @@ namespace files {
             // save the graph with default / current name
             std::string filename = "res/graphs/";
             filename.append(obj->name);
+            auto now = std::chrono::system_clock::now();
+            filename.append(std::format("{:%Y-%m-%d-%H%M%S}", now));
             filename.append(".ngraph");
             taskfile["shaderfile"] = obj->delegate.finalNode->filename;
             taskfile["noofnodes"] = obj->delegate.GetNodeCount();
@@ -85,7 +111,27 @@ namespace files {
                 taskfile["nodes"][i]["type"] = static_cast<int>(obj->delegate.mNodes[i].templateIndex);
                 taskfile["nodes"][i]["x"] = obj->delegate.mNodes[i].x;
                 taskfile["nodes"][i]["y"] = obj->delegate.mNodes[i].y;
-                // TODO save values
+                NodeInstance* currentnode = obj->delegate.mNodes[i].instance;
+                if (currentnode->outputType != NONE){
+                    for (int inputno = 0; inputno < currentnode->getInputCount(); inputno++) {
+                        taskfile["nodes"][i]["inputs"][inputno]["index"] = currentnode->currentInputs[inputno]->index();
+                        std::visit([&inputno, &taskfile, &i](auto &&value) {
+                            using T = std::decay_t<decltype(value)>;
+
+                            if constexpr (std::is_same_v<T, ImVec4>) {
+                                taskfile["nodes"][i]["inputs"][inputno]["value"]["x"] = value.x;
+                                taskfile["nodes"][i]["inputs"][inputno]["value"]["y"] = value.y;
+                                taskfile["nodes"][i]["inputs"][inputno]["value"]["z"] = value.z;
+                                taskfile["nodes"][i]["inputs"][inputno]["value"]["w"] = value.w;
+                            } else if constexpr (std::is_same_v<T, ImVec2>) {
+                                taskfile["nodes"][i]["inputs"][inputno]["value"]["x"] = value.x;
+                                taskfile["nodes"][i]["inputs"][inputno]["value"]["y"] = value.y;
+                            } else {
+                                taskfile["nodes"][i]["inputs"][inputno]["value"] = value;
+                            }
+                        }, *currentnode->currentInputs[inputno]);
+                    }
+                }
             }
             taskfile["nooflinks"] = obj->delegate.GetLinkCount();
             // save links
@@ -114,7 +160,25 @@ namespace files {
                 taskfile["nodes"][i]["type"] = static_cast<int>(obj->delegate.mNodes[i].templateIndex);
                 taskfile["nodes"][i]["x"] = obj->delegate.mNodes[i].x;
                 taskfile["nodes"][i]["y"] = obj->delegate.mNodes[i].y;
-                // TODO save values
+                NodeInstance* currentnode = obj->delegate.mNodes[i].instance;
+                for (int inputno = 0; inputno <= currentnode->getInputCount(); inputno++) {
+                    taskfile["nodes"][i]["inputs"][inputno]["index"] = currentnode->currentInputs[inputno]->index();
+                    std::visit([&inputno, &taskfile, &i](auto&& value) {
+                        using T = std::decay_t<decltype(value)>;
+
+                        if constexpr (std::is_same_v<T, ImVec4>) {
+                            taskfile["nodes"][i]["inputs"][inputno]["value"]["x"] = value.x;
+                            taskfile["nodes"][i]["inputs"][inputno]["value"]["y"] = value.y;
+                            taskfile["nodes"][i]["inputs"][inputno]["value"]["z"] = value.z;
+                            taskfile["nodes"][i]["inputs"][inputno]["value"]["w"] = value.w;
+                        } else if constexpr (std::is_same_v<T, ImVec2>) {
+                            taskfile["nodes"][i]["inputs"][inputno]["value"]["x"] = value.x;
+                            taskfile["nodes"][i]["inputs"][inputno]["value"]["y"] = value.y;
+                        } else {
+                            taskfile["nodes"][i]["inputs"][inputno]["value"] = value;
+                        }
+                    }, *currentnode->currentInputs[inputno]);
+                }
             }
             taskfile["nooflinks"] = obj->delegate.GetLinkCount();
             // save links

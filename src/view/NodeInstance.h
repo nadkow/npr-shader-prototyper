@@ -1,8 +1,6 @@
 #ifndef NPRSPR_NODEINSTANCE_H
 #define NPRSPR_NODEINSTANCE_H
 
-#include <variant>
-
 enum slotType {DATA, SHADER, NONE};
 enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, SHADER_TEXTURE, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
 const char* nodeNames[] {"final", "flat", "fresnel", "colorize", "metal (ring)", "texture", "color", "float", "combine vec4"};

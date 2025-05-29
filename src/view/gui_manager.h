@@ -14,6 +14,10 @@ namespace gui {
     static GraphEditor::ViewState viewState;
     static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
 
+    const IGFD::FileDialogConfig fileDialogConfig{
+        "./res/graphs/"
+    };
+
     static void glfw_error_callback(int error, const char *description) {
         fprintf(stderr, "Glfw Error %d: %s\n", error, description);
     }
@@ -90,20 +94,6 @@ namespace gui {
         ImGui::StyleColorsDark();
         //ImGui::StyleColorsClassic();
 
-        // Load Fonts
-        // - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-        // - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-        // - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-        // - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-        // - Read 'misc/fonts/README.txt' for more instructions and details.
-        // - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-        //io.Fonts->AddFontDefault();
-        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-        //io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-        //ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-        //IM_ASSERT(font != NULL);
     }
 
     bool init() {
@@ -130,7 +120,7 @@ namespace gui {
     }
 
     void ShowFileMenu() {
-        if (ImGui::MenuItem("Open...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileOpenKey", "Choose File", ".ngraph");;
+        if (ImGui::MenuItem("Open...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileOpenKey", "Choose File", ".ngraph", fileDialogConfig);
         if (ImGui::MenuItem("Save", "Ctrl+S")) files::save(selectedObject);
         if (ImGui::MenuItem("Save As...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileSaveKey", "Choose File", ".ngraph");;
     }

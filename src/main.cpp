@@ -10,6 +10,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include <variant>
 #include <yaml-cpp/yaml.h>
 #include "ImGuiFileDialog.h"
 #include <inja/inja.hpp>
