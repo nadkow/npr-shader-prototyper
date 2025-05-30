@@ -200,7 +200,7 @@ namespace gui {
             }
             if (ImGui::BeginTabItem("lights"))
             {
-                for (LightObject *ob : object_manager.lightObjects) {
+                for (LightObject *ob : *object_manager.lightObjects) {
                     if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
                         selectedLight = ob;
                         activeSelected = ob;

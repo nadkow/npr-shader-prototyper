@@ -2,8 +2,9 @@
 #define NPRSPR_NODEINSTANCE_H
 
 enum slotType {DATA, SHADER, NONE};
-enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, SHADER_TEXTURE, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
+enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, SHADER_TEXTURE, SHADER_POINT, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
 const char* nodeNames[] {"final", "flat", "fresnel", "colorize", "metal (ring)", "texture", "color", "float", "combine vec4"};
+static int graphCount = 0;
 
 class NodeInstance {
 
@@ -325,7 +326,6 @@ public:
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
         path = "";
-        //shader_type = TEXTURE;
     };
 
     void drawNode(ImRect rect, float factor) override {
@@ -354,7 +354,81 @@ public:
 
 };
 
-static int graphCount = 0;
+class DrawPoint : public ShaderNodeInstance {
+
+public:
+    static constexpr int inputCount = 0;
+    LightObject* light = nullptr;
+
+    DrawPoint() : ShaderNodeInstance() {
+        // outputs
+        outputs = new std::vector<NodeInstance*>[1]{};
+        path = "res/shader_templates/point.frag";
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        data["color"]["r"] = 1.f;
+        data["color"]["g"] = 1.f;
+        data["color"]["b"] = 1.f;
+        data["pos"]["x"] = 0.f;
+        data["pos"]["y"] = 0.f;
+        data["pos"]["z"] = 0.f;
+        shader_text = env.render(temp, data);
+    };
+
+    void drawNode(ImRect rect, float factor) override {
+        ImGui::SetCursorPosX(rect.Min.x + 10);
+        ImGui::SetCursorPosY(ImGui::GetCursorPosY() + 10 * factor);
+        ImGui::PushItemWidth(80);
+        std::string lightname = "none";
+        if (light) lightname = light->name;
+        if (ImGui::BeginCombo("light", lightname.c_str())) {
+            for (auto &l : *lightObjectsVector) {
+                bool is_selected = (light == l);
+                if (ImGui::Selectable(l->name.c_str(), is_selected)) {
+                    light = l;
+                    triggerEvent();
+                }
+                if (is_selected) {
+                    ImGui::SetItemDefaultFocus();
+                }
+            }
+            ImGui::EndCombo();
+        }
+    }
+
+    void updateConnect(NodeInstance* node, int inSlot) override {
+        triggerEvent();
+    }
+
+    void updateDisconnect(NodeInstance* node, int inSlot) override {
+        inputs[inSlot].node = nullptr;
+        triggerEvent();
+    }
+
+    int getInputCount() override {
+        return 0;
+    }
+
+    void recompile() override{
+        // not recompile, just edit the file
+        if (light) {
+            inja::Environment env;
+            inja::Template temp = env.parse_template(path);
+            inja::json data;
+            data["color"]["r"] = light->color.x;
+            data["color"]["g"] = light->color.y;
+            data["color"]["b"] = light->color.z;
+            glm::vec3 pos = light->node.getGlobalTranslation();
+            data["pos"]["x"] = pos.x;
+            data["pos"]["y"] = pos.y;
+            data["pos"]["z"] = pos.z;
+            shader_text = env.render(temp, data);
+        }
+    }
+
+};
 
 class DrawFresnel : public ShaderNodeInstance {
 
@@ -714,19 +788,6 @@ public:
     }
 };
 
-/**
-std::unique_ptr<NodeInstance> instantiateNode(nodeType type) {
-    switch(type) {
-        case SHADER_FLAT: return std::make_unique<DrawFlat>();
-        case SHADER_FRESNEL: return std::make_unique<DrawFresnel>();
-        case DATA_COLOR: return std::make_unique<ColorNode>();
-        case DATA_FLOAT: return std::make_unique<FloatNode>();
-        case DATA_COMBINEVEC4: return std::make_unique<CombineVec4Node>();
-        default: return nullptr;
-    }
-}
- **/
-
 NodeInstance* instantiateNode(nodeType type) {
     switch(type) {
         case FINAL: return new DrawFinal();
@@ -735,6 +796,7 @@ NodeInstance* instantiateNode(nodeType type) {
         case SHADER_COLORIZE: return new DrawColorize();
         case SHADER_RING: return new DrawRing();
         case SHADER_TEXTURE: return new DrawTexture();
+        case SHADER_POINT: return new DrawPoint();
         case DATA_COLOR: return new ColorNode();
         case DATA_FLOAT: return new FloatNode();
         case DATA_COMBINEVEC4: return new CombineVec4Node();

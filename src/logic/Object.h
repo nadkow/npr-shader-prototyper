@@ -65,17 +65,19 @@ private:
     }
 };
 
-
-
 class ObjectManager {
 
 public:
 
     std::vector<Object *> objects;
-    std::vector<LightObject *> lightObjects;
+    std::shared_ptr<std::vector<LightObject*>> lightObjects;
+
+    ObjectManager() {
+        lightObjects = lightObjectsVector;
+    }
 
     void createLightObject() {
-        lightObjects.push_back(new LightObject());
+        lightObjects->push_back(new LightObject(lightObjects));
     }
 
     void addNewModel(const std::string &filename) {
@@ -93,8 +95,9 @@ public:
     }
 
     void deleteLight(LightObject *ob) {
-        auto it = std::remove(lightObjects.begin(), lightObjects.end(), ob);
-        lightObjects.erase(it, lightObjects.end());
+        if (lightObjects->size() == 1) return;
+        auto it = std::remove(lightObjects->begin(), lightObjects->end(), ob);
+        lightObjects->erase(it, lightObjects->end());
         delete ob;
     }
 
