@@ -3,7 +3,7 @@
 
 enum slotType {DATA, SHADER, NONE};
 enum nodeType {FINAL, SHADER_FLAT, SHADER_FRESNEL, SHADER_COLORIZE, SHADER_RING, SHADER_TEXTURE, SHADER_POINT, SHADER_SPECULAR, SHADER_POINT_TEX, DATA_COLOR, DATA_FLOAT, DATA_COMBINEVEC4};
-const char* nodeNames[] {"final", "flat", "fresnel", "colorize", "metal (ring)", "texture", "color", "float", "combine vec4"};
+const char* nodeNames[] {"final", "flat", "fresnel", "colorize", "metal (ring)", "texture", "point light", "point specular", "textured point light", "color", "float", "combine vec4"};
 static int graphCount = 0;
 
 class NodeInstance {

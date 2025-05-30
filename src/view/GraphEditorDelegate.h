@@ -106,7 +106,7 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             if (ImGui::BeginMenu("shader nodes"))
             {
                 for (NodeBlueprint nb: nodeBlueprints) {
-                    if (nb.type < DATA_COLOR) {
+                    if (nb.type < DATA_COLOR && nb.type != FINAL) {
                         if (ImGui::Selectable(nb.name, false)) {
                             mNodes.push_back(
                                     {nb.name, static_cast<GraphEditor::TemplateIndex>(nb.type), mousePos.x, mousePos.y,
@@ -362,16 +362,8 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     // TODO rearrange
     std::vector<NodeBlueprint> nodeBlueprints = {
             {
-                    "color",
-                    DATA_COLOR
-            },
-            {
-                    "float",
-                    DATA_FLOAT
-            },
-            {
-                    "combine vec4",
-                    DATA_COMBINEVEC4
+                "final",
+                FINAL
             },
             {
                     "flat",
@@ -398,12 +390,24 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                 SHADER_POINT
             },
             {
+                    "point specular",
+                    SHADER_SPECULAR
+            },
+            {
                 "textured point light",
                 SHADER_POINT_TEX
             },
             {
-                "point specular",
-                SHADER_SPECULAR
+                    "color",
+                    DATA_COLOR
+            },
+            {
+                    "float",
+                    DATA_FLOAT
+            },
+            {
+                    "combine vec4",
+                    DATA_COMBINEVEC4
             }
     };
 
