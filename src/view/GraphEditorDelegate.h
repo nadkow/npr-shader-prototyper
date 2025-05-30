@@ -277,6 +277,32 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
                     Array{ SHADER_SLOT_COLOR},
                     80
             },
+            // SHADER_POINT_TEX
+            {
+                    SHADER_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    0,
+                    Array{""},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Shader"},
+                    Array{ SHADER_SLOT_COLOR},
+                    80
+            },
+            // SHADER_SPECULAR
+            {
+                    SHADER_HEAD_COLOR,
+                    BG_COLOR,
+                    OVER_BG_COLOR,
+                    0,
+                    Array{""},
+                    Array{ DEFAULT_SLOT_COLOR},
+                    1,
+                    Array{"Shader"},
+                    Array{ SHADER_SLOT_COLOR},
+                    80
+            },
             // DATA_COLOR
             {
                     DEFAULT_HEAD_COLOR,
@@ -370,6 +396,14 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
             {
                 "point light",
                 SHADER_POINT
+            },
+            {
+                "textured point light",
+                SHADER_POINT_TEX
+            },
+            {
+                "point specular",
+                SHADER_SPECULAR
             }
     };
 

@@ -16,4 +16,5 @@ uniform vec2 resolution;
 void main()
 {
     FragColor = vec4(0, 0, 0, 1);
+vec3 g_norm = normalize(Normal);
 
