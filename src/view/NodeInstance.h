@@ -325,7 +325,12 @@ public:
     DrawTexture() : ShaderNodeInstance() {
         // outputs
         outputs = new std::vector<NodeInstance*>[1]{};
-        path = "";
+        path = "res/shader_templates/texture.frag";
+        // not recompile, just edit the file
+        inja::Environment env;
+        inja::Template temp = env.parse_template(path);
+        inja::json data;
+        shader_text = env.render(temp, data);
     };
 
     void drawNode(ImRect rect, float factor) override {

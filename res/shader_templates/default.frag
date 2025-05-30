@@ -7,9 +7,10 @@ out vec4 FragColor;
 
 in vec4 worldPos;
 in vec3 Normal;
+in vec2 TexCoords;
 
 uniform vec3 viewPos;
-uniform sampler2D iRender;
+uniform sampler2D texture1;
 uniform vec2 resolution;
 
 void main()
