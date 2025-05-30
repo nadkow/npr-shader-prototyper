@@ -81,6 +81,9 @@ namespace files {
                                 break;
                         }
                     }
+                    if (currentnode->outputType == SHADER) {
+                        dynamic_cast<ShaderNodeInstance *>(currentnode)->recompile();
+                    }
                 }
             }
             for (int i = 0; i < nooflinks; i++) {
