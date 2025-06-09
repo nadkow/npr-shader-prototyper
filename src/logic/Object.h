@@ -9,7 +9,7 @@ public:
 
     std::string filename;
     GraphEditorDelegate delegate;
-    GraphManager graph_manager;
+    std::shared_ptr<GraphManager> graph_manager;
 
     explicit Object(std::string filepath) : filename(std::move(filepath)) {
         model = Model(std::filesystem::absolute(filename));
@@ -19,15 +19,23 @@ public:
         id = globalId;
         globalId++;
 
-        graph_manager = GraphManager();
-        events::addListener(&graph_manager);
-
+        graph_manager = std::make_shared<GraphManager>();
+        graph_manager->initialize();
         delegate.addFinalNode();
-        graph_manager.finalNode = delegate.finalNode;
+        graph_manager->finalNode = delegate.finalNode;
         delegate.finalNode->setShaderProgram(shader);
     }
 
     Object() = default;
+
+    ~Object() {
+        if (shader) {
+            delete shader;
+            shader = nullptr;
+        }
+        // The GraphManager will be automatically cleaned up by shared_ptr
+        // and its destructor will handle unregistering from events
+    }
 
     void draw() {
         // update context before drawing
@@ -50,7 +58,7 @@ public:
 
     void changeDelegate(GraphEditorDelegate* d) {
         delegate = *d;
-        graph_manager.finalNode = delegate.finalNode;
+        graph_manager->finalNode = delegate.finalNode;
         shader = delegate.finalNode->shader;
     }
 
@@ -69,7 +77,7 @@ class ObjectManager {
 
 public:
 
-    std::vector<Object *> objects;
+    std::vector<std::unique_ptr<Object>> objects;
     std::shared_ptr<std::vector<LightObject*>> lightObjects;
 
     ObjectManager() {
@@ -81,13 +89,15 @@ public:
     }
 
     void addNewModel(const std::string &filename) {
-        objects.push_back(new Object(filename));
+        objects.push_back(std::make_unique<Object>(filename));
     }
 
     void deleteObject(Object *ob) {
-        auto it = std::remove(objects.begin(), objects.end(), ob);
-        objects.erase(it, objects.end());
-        delete ob;
+        auto it = std::find_if(objects.begin(), objects.end(),
+            [ob](const std::unique_ptr<Object>& ptr) { return ptr.get() == ob; });
+        if (it != objects.end()) {
+            objects.erase(it);
+        }
     }
 
     void addNewLight() {
@@ -102,7 +112,7 @@ public:
     }
 
     void draw() {
-        for (Object *obj: objects) {
+        for (const auto& obj : objects) {
             if (obj->visible) obj->draw();
         }
     }

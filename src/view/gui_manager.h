@@ -203,10 +203,10 @@ namespace gui {
         {
             if (ImGui::BeginTabItem("meshes"))
             {
-                for (Object *ob : object_manager.objects) {
-                    if (ImGui::Selectable(ob->name.c_str(), activeSelected == ob)) {
-                        selectedObject = ob;
-                        activeSelected = ob;
+                for (const auto& ob : object_manager.objects) {
+                    if (ImGui::Selectable(ob->name.c_str(), selectedObject == ob.get())) {
+                        selectedObject = ob.get();
+                        activeSelected = ob.get();
                     }
                 }
                 ImGui::Separator();

@@ -6,15 +6,29 @@
 
 namespace events {
 
-    std::vector<Listener*> listeners;
+    std::vector<std::weak_ptr<Listener>> listeners;
 
-    void addListener(Listener* lstnr) {
+    void addListener(std::shared_ptr<Listener> lstnr) {
         listeners.push_back(lstnr);
     }
 
+    void removeListener(std::shared_ptr<Listener> lstnr) {
+        listeners.erase(
+            std::remove_if(listeners.begin(), listeners.end(),
+                [&](const std::weak_ptr<Listener>& weak_lstnr) {
+                    auto shared_lstnr = weak_lstnr.lock();
+                    return !shared_lstnr || shared_lstnr == lstnr;
+                }
+            ),
+            listeners.end()
+        );
+    }
+
     void fireEvent(BaseEvent* event) {
-        for (auto listener : listeners) {
-            listener->listen(event);
+        for (auto& weak_lstnr : listeners) {
+            if (auto shared_lstnr = weak_lstnr.lock()) {
+                shared_lstnr->listen(event);
+            }
         }
     }
 }

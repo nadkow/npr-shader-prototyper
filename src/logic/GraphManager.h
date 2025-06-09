@@ -1,9 +1,17 @@
 #ifndef NPRSPR_GRAPHMANAGER_H
 #define NPRSPR_GRAPHMANAGER_H
 
-class GraphManager : public Listener {
+#include "../events/event_manager.h"
+
+class GraphManager : public Listener, public std::enable_shared_from_this<GraphManager> {
 public:
     DrawFinal* finalNode;
+
+    GraphManager() : finalNode(nullptr) {}
+
+    void initialize() {
+        events::addListener(shared_from_this());
+    }
 
     void listen(BaseEvent* event) override {
         NodeEvent* nodeevent = dynamic_cast<NodeEvent*>(event);
@@ -13,7 +21,6 @@ public:
     }
 
 private:
-
     void onNodeChanged(NodeInstance* node) {
         //update current node
         node->pullData();

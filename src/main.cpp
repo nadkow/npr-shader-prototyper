@@ -26,6 +26,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <memory>
 
 #include "logic/common.h"
 #include "rendering/Model.h"
@@ -82,7 +83,6 @@ int main(int, char **) {
 
         gui::draw_gui();
         gui::end_frame();
-
     }
 
     gui::terminate();
