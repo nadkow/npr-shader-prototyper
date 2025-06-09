@@ -17,6 +17,9 @@ namespace gui {
     const IGFD::FileDialogConfig fileDialogConfig{
         "./res/graphs/"
     };
+    const IGFD::FileDialogConfig projDialogConfig{
+            "./res/projects/"
+    };
 
     static void glfw_error_callback(int error, const char *description) {
         fprintf(stderr, "Glfw Error %d: %s\n", error, description);
@@ -125,8 +128,12 @@ namespace gui {
 
     void ShowFileMenu() {
         if (ImGui::MenuItem("Open...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileOpenKey", "Choose File", ".ngraph", fileDialogConfig);
-        if (ImGui::MenuItem("Save", "Ctrl+S")) files::save(selectedObject);
-        if (ImGui::MenuItem("Save As...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileSaveKey", "Choose File", ".ngraph");;
+        if (ImGui::MenuItem("Save")) files::save(selectedObject);
+        if (ImGui::MenuItem("Save as...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseFileSaveKey", "Choose File", ".ngraph", fileDialogConfig);
+        ImGui::Separator();
+        if (ImGui::MenuItem("Open project...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseProjectOpenKey", "Choose File", ".nproj", projDialogConfig);
+        if (ImGui::MenuItem("Save project")) files::save_project();
+        if (ImGui::MenuItem("Save project as...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseProjectSaveKey", "Choose File", ".nproj", projDialogConfig);
     }
 
     void render_graph_editor() {
@@ -169,6 +176,20 @@ namespace gui {
             if (ImGuiFileDialog::Instance()->IsOk()) {
                 std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
                 files::save_as(filePathName, selectedObject);
+            }
+            ImGuiFileDialog::Instance()->Close();
+        }
+        if (ImGuiFileDialog::Instance()->Display("ChooseProjectOpenKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                files::open_project(filePathName);
+            }
+            ImGuiFileDialog::Instance()->Close();
+        }
+        if (ImGuiFileDialog::Instance()->Display("ChooseProjectSaveKey")) {
+            if (ImGuiFileDialog::Instance()->IsOk()) {
+                std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
+                files::save_as_project(filePathName);
             }
             ImGuiFileDialog::Instance()->Close();
         }

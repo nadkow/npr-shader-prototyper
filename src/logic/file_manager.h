@@ -200,6 +200,34 @@ namespace files {
             fout.close();
         }
     }
+
+    void open_project(const std::string& filepath) {
+        YAML::Node taskfile = YAML::LoadFile(filepath);
+        int noofobj = taskfile["noOfObjects"].as<int>();
+        for (int i = 0; i < noofobj; i++) {
+            object_manager.addNewModel(taskfile["objects"][i]["file"].as<std::string>());
+        }
+    }
+
+    void save_as_project(const std::string& filepath) {
+        YAML::Node taskfile;
+    }
+
+    void save_project() {
+        std::string filename = "res/projects/";
+        auto now = std::chrono::system_clock::now();
+        filename.append(std::format("{:%Y-%m-%d-%H%M%S}", now));
+        filename.append(".nproj");
+        YAML::Node taskfile;
+        taskfile["noOfObjects"] = object_manager.objects.size();
+        for (int i = 0; i < object_manager.objects.size(); i++) {
+            taskfile["objects"][i]["file"] = object_manager.objects[i]->filename;
+            taskfile["objects"][i]["graph"] = "";
+        }
+        std::ofstream fout(filename);
+        fout << taskfile;
+        fout.close();
+    }
 }
 
 #endif //NPRSPR_FILE_MANAGER_H
