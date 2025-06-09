@@ -206,11 +206,39 @@ namespace files {
         int noofobj = taskfile["noOfObjects"].as<int>();
         for (int i = 0; i < noofobj; i++) {
             object_manager.addNewModel(taskfile["objects"][i]["file"].as<std::string>());
+            
+            // Load position if it exists in the file
+            if (taskfile["objects"][i]["position"]) {
+                glm::mat4 transform(1.0f);
+                // Load translation matrix
+                for (int row = 0; row < 4; row++) {
+                    for (int col = 0; col < 4; col++) {
+                        transform[row][col] = taskfile["objects"][i]["position"]["matrix"][row][col].as<float>();
+                    }
+                }
+                object_manager.objects[i]->node.translation(transform);
+            }
         }
     }
 
     void save_as_project(const std::string& filepath) {
         YAML::Node taskfile;
+        taskfile["noOfObjects"] = object_manager.objects.size();
+        for (int i = 0; i < object_manager.objects.size(); i++) {
+            taskfile["objects"][i]["file"] = object_manager.objects[i]->filename;
+            taskfile["objects"][i]["graph"] = "";
+            
+            // Save position
+            auto transform = object_manager.objects[i]->node.getTranslation();
+            for (int row = 0; row < 4; row++) {
+                for (int col = 0; col < 4; col++) {
+                    taskfile["objects"][i]["position"]["matrix"][row][col] = transform[row][col];
+                }
+            }
+        }
+        std::ofstream fout(filepath);
+        fout << taskfile;
+        fout.close();
     }
 
     void save_project() {
@@ -223,6 +251,14 @@ namespace files {
         for (int i = 0; i < object_manager.objects.size(); i++) {
             taskfile["objects"][i]["file"] = object_manager.objects[i]->filename;
             taskfile["objects"][i]["graph"] = "";
+            
+            // Save position
+            auto transform = object_manager.objects[i]->node.getTranslation();
+            for (int row = 0; row < 4; row++) {
+                for (int col = 0; col < 4; col++) {
+                    taskfile["objects"][i]["position"]["matrix"][row][col] = transform[row][col];
+                }
+            }
         }
         std::ofstream fout(filename);
         fout << taskfile;
