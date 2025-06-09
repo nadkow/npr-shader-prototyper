@@ -1,1 +1,1 @@
-FragColor = texture(texture1, TexCoords);
+    FragColor = texture(texture1, TexCoords);

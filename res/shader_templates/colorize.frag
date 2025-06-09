@@ -1,2 +1,2 @@
-float colorize_bw = (min(FragColor.x, min(FragColor.y, FragColor.z)) + max(FragColor.x, max(FragColor.y, FragColor.z))) * 0.5;
-FragColor.xyz = vec3(colorize_bw, colorize_bw, colorize_bw) * vec3({{ color.r }}, {{ color.g }}, {{ color.b }});
+    float colorize_bw_{{ node_id }} = (min(FragColor.x, min(FragColor.y, FragColor.z)) + max(FragColor.x, max(FragColor.y, FragColor.z))) * 0.5;
+    FragColor.xyz = vec3(colorize_bw_{{ node_id }}, colorize_bw_{{ node_id }}, colorize_bw_{{ node_id }}) * vec3({{ color.r }}, {{ color.g }}, {{ color.b }});

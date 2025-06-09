@@ -98,11 +98,14 @@ protected:
 // base class for shader nodes
 class ShaderNodeInstance : public NodeInstance {
 public:
+    static int nextNodeId;
+    int nodeId;
 
     ShaderNodeInstance() {
          inputType = DATA;
          outputType = SHADER;
          outputDirtyFlags = new bool[1];
+         nodeId = nextNodeId++;
     }
 
     int getOutputCount() override {
@@ -118,6 +121,9 @@ public:
     const char* path;
     //block::pass_name shader_type;
 };
+
+// Initialize the static counter
+int ShaderNodeInstance::nextNodeId = 0;
 
 // base class for data nodes
 class DataNodeInstance : public NodeInstance {
@@ -154,6 +160,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -188,6 +195,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     }
 
@@ -217,6 +225,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -251,6 +260,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     }
 
@@ -277,6 +287,7 @@ public:
         inja::Template temp = env.parse_template(path);
         inja::json data;
         data["bands"] = std::get<int>(bands);
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -312,6 +323,7 @@ public:
         inja::Template temp = env.parse_template(path);
         inja::json data;
         data["bands"] = std::get<int>(bands);
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     }
 
@@ -379,6 +391,7 @@ public:
         data["pos"]["x"] = 0.f;
         data["pos"]["y"] = 0.f;
         data["pos"]["z"] = 0.f;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -429,6 +442,7 @@ public:
             data["pos"]["x"] = pos.x;
             data["pos"]["y"] = pos.y;
             data["pos"]["z"] = pos.z;
+            data["node_id"] = nodeId;
             shader_text = env.render(temp, data);
         }
     }
@@ -452,6 +466,7 @@ public:
         data["pos"]["x"] = 0.f;
         data["pos"]["y"] = 0.f;
         data["pos"]["z"] = 0.f;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -499,6 +514,7 @@ public:
             data["pos"]["x"] = pos.x;
             data["pos"]["y"] = pos.y;
             data["pos"]["z"] = pos.z;
+            data["node_id"] = nodeId;
             shader_text = env.render(temp, data);
         }
     }
@@ -525,6 +541,7 @@ public:
         data["pos"]["x"] = 0.f;
         data["pos"]["y"] = 0.f;
         data["pos"]["z"] = 0.f;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -575,6 +592,7 @@ public:
             data["pos"]["x"] = pos.x;
             data["pos"]["y"] = pos.y;
             data["pos"]["z"] = pos.z;
+            data["node_id"] = nodeId;
             shader_text = env.render(temp, data);
         }
     }
@@ -605,6 +623,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     };
 
@@ -639,6 +658,7 @@ public:
         data["color"]["r"] = tempcolor.x;
         data["color"]["g"] = tempcolor.y;
         data["color"]["b"] = tempcolor.z;
+        data["node_id"] = nodeId;
         shader_text = env.render(temp, data);
     }
 
