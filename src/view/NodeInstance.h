@@ -715,8 +715,16 @@ public:
             finalNodeTemplate->mInputCount += 1;
             finalNodeTemplate->mHeight += 40;
             lastOccupiedSlot = inSlot;
-            connectedNodes.insert(connectedNodes.end()-1, dynamic_cast<ShaderNodeInstance *>(node));
+            // Ensure vector is large enough
+            if (connectedNodes.size() <= inSlot) {
+                connectedNodes.resize(inSlot + 1, nullptr);
+            }
+            connectedNodes[inSlot] = dynamic_cast<ShaderNodeInstance *>(node);
         } else {
+            // Ensure vector is large enough
+            if (connectedNodes.size() <= inSlot) {
+                connectedNodes.resize(inSlot + 1, nullptr);
+            }
             connectedNodes[inSlot] = dynamic_cast<ShaderNodeInstance *>(node);
         }
         triggerEvent();
