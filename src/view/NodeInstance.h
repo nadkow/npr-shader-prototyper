@@ -671,24 +671,21 @@ class DrawFinal : public NodeInstance {
 public:
     std::string filename;
     ShaderProgram* shader;
+    int ownerId;
 
-    DrawFinal(GraphEditor::Template* t) {
+    DrawFinal(GraphEditor::Template* t, int id) : ownerId(id) {
         inputType = SHADER;
         outputType = NONE;
         finalNodeTemplate = t;
-        graphCount++;
         filename = "res/shaders/graph";
-        filename.append(std::to_string(graphCount));
+        filename.append(std::to_string(ownerId));
         filename.append(".frag");
     }
 
     DrawFinal() {
         inputType = SHADER;
         outputType = NONE;
-        graphCount++;
-        filename = "res/shaders/graph";
-        filename.append(std::to_string(graphCount));
-        filename.append(".frag");
+        filename = "res/shaders/unknown.frag";
     }
 
     void setTemplate(GraphEditor::Template* t) {

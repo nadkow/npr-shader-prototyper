@@ -46,8 +46,8 @@ struct GraphEditorDelegate : public GraphEditor::Delegate
     
     DrawFinal* finalNode;
 
-    void addFinalNode() {
-        finalNode = new DrawFinal(&finalNodeTemplate);
+    void addFinalNode(int ownerId) {
+        finalNode = new DrawFinal(&finalNodeTemplate, ownerId);
         mNodes.push_back({
                                  "final output",
                                  0,

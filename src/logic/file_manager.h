@@ -48,8 +48,7 @@ namespace files {
                 float x = taskfile["nodes"][i]["x"].as<float>();
                 float y = taskfile["nodes"][i]["y"].as<float>();
                 if (type == FINAL) {
-                    DrawFinal* df = new DrawFinal(&delegate.finalNodeTemplate);
-                    df->filename = shaderfile;
+                    DrawFinal* df = new DrawFinal(&delegate.finalNodeTemplate, obj->get_id());
                     df->compile();
                     delegate.finalNode = df;
                     delegate.mNodes.push_back(

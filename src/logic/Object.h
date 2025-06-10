@@ -21,7 +21,7 @@ public:
 
         graph_manager = std::make_shared<GraphManager>();
         graph_manager->initialize();
-        delegate.addFinalNode();
+        delegate.addFinalNode(id);
         graph_manager->finalNode = delegate.finalNode;
         delegate.finalNode->setShaderProgram(shader);
     }
@@ -35,6 +35,10 @@ public:
         }
         // The GraphManager will be automatically cleaned up by shared_ptr
         // and its destructor will handle unregistering from events
+    }
+
+    int get_id() {
+        return id;
     }
 
     void draw() {
