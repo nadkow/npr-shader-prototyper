@@ -30,6 +30,12 @@ set (ImGuiFileDialog_SOURCE_DIR ${IMGUIFILEDIALOG_DIR} CACHE INTERNAL "")
 add_library(ImGuiFileDialog STATIC ${IMGUIFILEDIALOG_DIR}/ImGuiFileDialog.cpp)
 target_include_directories(ImGuiFileDialog PRIVATE ${IMGUIFILEDIALOG_DIR})
 
+# ImGuiColorTextEdit
+set(IMGUICOLORTEXTEDIT_DIR ${CMAKE_CURRENT_LIST_DIR}/ImGuiColorTextEdit)
+set (ImGuiColorTextEdit_SOURCE_DIR ${IMGUICOLORTEXTEDIT_DIR} CACHE INTERNAL "")
+add_library(ImGuiColorTextEdit STATIC ${IMGUICOLORTEXTEDIT_DIR}/TextEditor.cpp)
+target_include_directories(ImGuiColorTextEdit PRIVATE ${IMGUICOLORTEXTEDIT_DIR})
+
 # ImGui implementations
 set(IMGUI_IMPL_DIR ${CMAKE_CURRENT_LIST_DIR}/imgui_impl)
 set(imgui_impl_SOURCE_DIR ${IMGUI_IMPL_DIR} CACHE INTERNAL "")
@@ -54,6 +60,7 @@ add_library(imgui STATIC ${imgui_SOURCE_DIR}/imgui.cpp
 
 target_include_directories(imguizmo PRIVATE ${imgui_SOURCE_DIR})
 target_include_directories(ImGuiFileDialog PRIVATE ${imgui_SOURCE_DIR})
+target_include_directories(ImGuiColorTextEdit PRIVATE ${imgui_SOURCE_DIR})
 target_include_directories(graph_editor PRIVATE ${imgui_SOURCE_DIR})
 target_include_directories(imgui_impl PRIVATE ${imgui_SOURCE_DIR} ${glfw_SOURCE_DIR})
 
@@ -69,6 +76,7 @@ set_target_properties(glad
 					  inja
 					  yaml-cpp
 					  ImGuiFileDialog
+					  ImGuiColorTextEdit
                       spdlog PROPERTIES FOLDER "thirdparty")
 
 if (TARGET zlibstatic)

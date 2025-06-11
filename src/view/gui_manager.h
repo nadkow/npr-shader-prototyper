@@ -1,5 +1,6 @@
 #ifndef NPRSPR_GUI_MANAGER_H
 #define NPRSPR_GUI_MANAGER_H
+#include "TextEditor.h"
 
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
