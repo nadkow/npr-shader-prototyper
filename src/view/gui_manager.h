@@ -10,6 +10,8 @@ namespace gui {
     Object *selectedObject = nullptr;
     LightObject *selectedLight = nullptr;
     GeneralObject *activeSelected = nullptr;
+    TextEditor editor;
+    std::string shaderText;
 
     static GraphEditor::Options options;
     static GraphEditor::ViewState viewState;
@@ -118,6 +120,8 @@ namespace gui {
         glfwGetFramebufferSize(window, &width, &height);
         glViewport(0, 0, width, height+19);
         projection = glm::perspective(glm::radians(45.0f), (float) width / height, 0.1f, 100.0f);
+
+        editor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
     }
 
     void imgui_begin() {
@@ -135,6 +139,12 @@ namespace gui {
         if (ImGui::MenuItem("Open project...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseProjectOpenKey", "Choose File", ".nproj", projDialogConfig);
         if (ImGui::MenuItem("Save project")) files::save_project();
         if (ImGui::MenuItem("Save project as...")) ImGuiFileDialog::Instance()->OpenDialog("ChooseProjectSaveKey", "Choose File", ".nproj", projDialogConfig);
+    }
+
+    void show_text_file() {
+        editor.SetText(shaderText);
+        editor.SetReadOnly(true);
+        editor.Render("TextEditor");
     }
 
     void render_graph_editor() {
@@ -169,6 +179,7 @@ namespace gui {
                 ImGui::EndTabItem();
             }
             if (ImGui::BeginTabItem("text")) {
+                show_text_file();
                 ImGui::EndTabItem();
             }
             ImGui::EndTabBar();
@@ -219,6 +230,8 @@ namespace gui {
                     if (ImGui::Selectable(ob->name.c_str(), selectedObject == ob.get())) {
                         selectedObject = ob.get();
                         activeSelected = ob.get();
+                        std::ifstream t("res/shaders/graph0.frag");
+                        shaderText = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                     }
                 }
                 ImGui::Separator();
