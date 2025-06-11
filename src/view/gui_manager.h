@@ -140,27 +140,38 @@ namespace gui {
 
         ImGui::Begin("Graph Editor", NULL, ImGuiWindowFlags_MenuBar);
 
-        if (ImGui::BeginMenuBar()) {
-            if (ImGui::BeginMenu("File")) {
-                ShowFileMenu();
-                ImGui::EndMenu();
+        ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+        if (ImGui::BeginTabBar("EditorTabBar", tab_bar_flags))
+        {
+            if (ImGui::BeginTabItem("graph"))
+            {
+                if (ImGui::BeginMenuBar()) {
+                    if (ImGui::BeginMenu("File")) {
+                        ShowFileMenu();
+                        ImGui::EndMenu();
+                    }
+                    ImGui::EndMenuBar();
+                }
+
+                if (ImGui::Button("Fit all nodes")) {
+                    fit = GraphEditor::Fit_AllNodes;
+                }
+                ImGui::SameLine();
+                if (ImGui::Button("Fit selected nodes")) {
+                    fit = GraphEditor::Fit_SelectedNodes;
+                }
+                ImGui::SameLine();
+                ImGui::Checkbox("Hide node slot names", &options.mDrawIONameOnHover);
+
+                if (selectedObject)
+                    GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
+                ImGui::EndTabItem();
             }
-            ImGui::EndMenuBar();
+            if (ImGui::BeginTabItem("text")) {
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
         }
-
-        if (ImGui::Button("Fit all nodes")) {
-            fit = GraphEditor::Fit_AllNodes;
-        }
-        ImGui::SameLine();
-        if (ImGui::Button("Fit selected nodes")) {
-            fit = GraphEditor::Fit_SelectedNodes;
-        }
-        ImGui::SameLine();
-        ImGui::Checkbox("Hide node slot names", &options.mDrawIONameOnHover);
-
-        if (selectedObject)
-            GraphEditor::Show(selectedObject->delegate, options, viewState, true, &fit);
-
         ImGui::End();
     }
 
