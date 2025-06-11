@@ -64,6 +64,9 @@ public:
         delegate = *d;
         graph_manager->finalNode = delegate.finalNode;
         shader = delegate.finalNode->shader;
+        std::string msg = "Changed delegate. ShaderProgram set to ";
+        msg.append(std::to_string(shader->ID));
+        spdlog::debug(msg);
     }
 
 private:

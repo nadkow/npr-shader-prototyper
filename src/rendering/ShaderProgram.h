@@ -85,7 +85,9 @@ public:
 
         glDeleteProgram(ID);
         ID = newShaderHandle;
-        spdlog::info("Shader recompiled successfully");
+        std::string msg = "Shader recompiled successfully! New ID: ";
+        msg.append(std::to_string(newShaderHandle));
+        spdlog::debug(msg);
         return newShaderHandle;
     }
 

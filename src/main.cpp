@@ -53,6 +53,7 @@ int main(int, char **) {
 
     gui::init();
     renderer::init();
+    spdlog::set_level(spdlog::level::info);
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LEQUAL);

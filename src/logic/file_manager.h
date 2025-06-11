@@ -37,6 +37,9 @@ namespace files {
 
     void open(const std::string& filepath, Object * obj) {
         if (obj) {
+            std::string msg1 = "\nOPENING FILE ";
+            msg1.append(filepath);
+            spdlog::debug(msg1);
             YAML::Node taskfile = YAML::LoadFile(filepath);
             // construct new graph and assign to obj
             GraphEditorDelegate delegate;
@@ -81,6 +84,9 @@ namespace files {
                         }
                     }
                     if (currentnode->outputType == SHADER) {
+                        std::string msg = "recompiling shader node: ";
+                        msg.append(dynamic_cast<ShaderNodeInstance *>(currentnode)->path);
+                        spdlog::debug(msg);
                         dynamic_cast<ShaderNodeInstance *>(currentnode)->recompile();
                     }
                 }

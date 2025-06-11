@@ -744,6 +744,7 @@ public:
     }
 
     void recompile() {
+        spdlog::debug("recompiling in drawFinal");
         int i = 1;
         std::ofstream out(filename, std::ios::out | std::ios::trunc);
         if (!out) {
@@ -761,10 +762,16 @@ public:
         }
         out << "}";
         out.close();
+        std::string msg = "from filename: ";
+        msg.append(filename);
+        spdlog::debug(msg);
         shader->recompile("res/shaders/default.vert", filename.c_str());
     }
 
     void compile() {
+        std::string msg = "Compile() in DrawFinal from filename: ";
+        msg.append(filename);
+        spdlog::debug(msg);
         shader = new ShaderProgram("res/shaders/default.vert", filename.c_str());
     }
 
