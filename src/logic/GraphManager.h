@@ -10,7 +10,7 @@ public:
     GraphManager() : finalNode(nullptr) {}
 
     void initialize() {
-        events::addListener(shared_from_this());
+        events::addListener(shared_from_this(), 0);  // Lower priority = processed first
     }
 
     void listen(BaseEvent* event) override {

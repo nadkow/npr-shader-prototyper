@@ -24,6 +24,7 @@ public:
         delegate.addFinalNode(id);
         graph_manager->finalNode = delegate.finalNode;
         delegate.finalNode->setShaderProgram(shader);
+        delegate.finalNode->recompile();
     }
 
     Object() = default;

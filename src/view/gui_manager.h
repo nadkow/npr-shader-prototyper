@@ -1,6 +1,8 @@
 #ifndef NPRSPR_GUI_MANAGER_H
 #define NPRSPR_GUI_MANAGER_H
 #include "TextEditor.h"
+#include "../events/event_manager.h"
+#include "../events/NodeEvent.h"
 
 static ImGuizmo::OPERATION currentGizmoOperation(ImGuizmo::TRANSLATE);
 
@@ -16,6 +18,20 @@ namespace gui {
     static GraphEditor::Options options;
     static GraphEditor::ViewState viewState;
     static GraphEditor::FitOnScreen fit = GraphEditor::Fit_None;
+
+    void updateTextDisplay();
+
+    class GuiManager : public Listener {
+    public:
+        void listen(BaseEvent* event) override {
+            NodeEvent* nodeevent = dynamic_cast<NodeEvent*>(event);
+            if (nodeevent && selectedObject) {
+                updateTextDisplay();
+            }
+        }
+    };
+
+    static std::shared_ptr<GuiManager> guiManager;
 
     const IGFD::FileDialogConfig fileDialogConfig{
         "./res/graphs/"
@@ -122,6 +138,12 @@ namespace gui {
         projection = glm::perspective(glm::radians(45.0f), (float) width / height, 0.1f, 100.0f);
 
         editor.SetLanguageDefinition(TextEditor::LanguageDefinition::GLSL());
+        
+        // Create and register the GUI manager as an event listener with high priority
+        guiManager = std::make_shared<GuiManager>();
+        events::addListener(guiManager, 100);  // Higher priority = processed later
+        
+        return true;
     }
 
     void imgui_begin() {
@@ -192,6 +214,7 @@ namespace gui {
             if (ImGuiFileDialog::Instance()->IsOk()) {
                 std::string filePathName = ImGuiFileDialog::Instance()->GetFilePathName();
                 files::open(filePathName, selectedObject);
+                updateTextDisplay();
             }
             ImGuiFileDialog::Instance()->Close();
         }
@@ -218,6 +241,11 @@ namespace gui {
         }
     }
 
+    void updateTextDisplay() {
+        std::ifstream t(selectedObject->graph_manager->finalNode->filename);
+        shaderText = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
+    }
+
     void render_object_list() {
         ImGui::Begin("Object list");
 
@@ -230,7 +258,7 @@ namespace gui {
                     if (ImGui::Selectable(ob->name.c_str(), selectedObject == ob.get())) {
                         selectedObject = ob.get();
                         activeSelected = ob.get();
-                        std::ifstream t("res/shaders/graph0.frag");
+                        std::ifstream t(ob->graph_manager->finalNode->filename);
                         shaderText = std::string((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
                     }
                 }
@@ -241,6 +269,7 @@ namespace gui {
                     object_manager.deleteObject(selectedObject);
                     activeSelected = nullptr;
                     selectedObject = nullptr;
+                    shaderText = "";
                 }
                 ImGui::EndTabItem();
             }

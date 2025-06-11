@@ -3,20 +3,34 @@
 
 #include "BaseEvent.h"
 #include "Listener.h"
+#include <algorithm>
 
 namespace events {
 
-    std::vector<std::weak_ptr<Listener>> listeners;
+    struct ListenerEntry {
+        std::weak_ptr<Listener> listener;
+        int priority;  // Higher priority = processed later
 
-    void addListener(std::shared_ptr<Listener> lstnr) {
-        listeners.push_back(lstnr);
+        ListenerEntry(std::shared_ptr<Listener> lstnr, int prio) 
+            : listener(lstnr), priority(prio) {}
+    };
+
+    std::vector<ListenerEntry> listeners;
+
+    void addListener(std::shared_ptr<Listener> lstnr, int priority = 0) {
+        listeners.emplace_back(lstnr, priority);
+        // Sort by priority (ascending order)
+        std::sort(listeners.begin(), listeners.end(), 
+            [](const ListenerEntry& a, const ListenerEntry& b) {
+                return a.priority < b.priority;
+            });
     }
 
     void removeListener(std::shared_ptr<Listener> lstnr) {
         listeners.erase(
             std::remove_if(listeners.begin(), listeners.end(),
-                [&](const std::weak_ptr<Listener>& weak_lstnr) {
-                    auto shared_lstnr = weak_lstnr.lock();
+                [&](const ListenerEntry& entry) {
+                    auto shared_lstnr = entry.listener.lock();
                     return !shared_lstnr || shared_lstnr == lstnr;
                 }
             ),
@@ -25,8 +39,8 @@ namespace events {
     }
 
     void fireEvent(BaseEvent* event) {
-        for (auto& weak_lstnr : listeners) {
-            if (auto shared_lstnr = weak_lstnr.lock()) {
+        for (auto& entry : listeners) {
+            if (auto shared_lstnr = entry.listener.lock()) {
                 shared_lstnr->listen(event);
             }
         }
